@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
-import { motion } from 'framer-motion'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { Calendar, ArrowRight, Tag } from 'lucide-react'
 import BlogGrid from '@/components/BlogGrid'
 
 export const metadata: Metadata = {

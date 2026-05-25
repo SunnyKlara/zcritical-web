@@ -28,7 +28,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-xl font-bold text-white mb-3">1. 概述</h2>
               <p>
-                Critical（以下简称"我们"）尊重并保护用户的隐私。本政策说明我们如何收集、使用、存储和保护您的个人信息。使用我们的产品或服务即表示您同意本政策的条款。
+                Critical（以下简称&ldquo;我们&rdquo;）尊重并保护用户的隐私。本政策说明我们如何收集、使用、存储和保护您的个人信息。使用我们的产品或服务即表示您同意本政策的条款。
               </p>
             </section>
 
@@ -101,7 +101,7 @@ export default function PrivacyPage() {
               <ul className="list-disc list-inside space-y-2 text-gray-400">
                 <li>访问和导出您的个人数据</li>
                 <li>更正不准确的信息</li>
-                <li>要求删除您的数据（"被遗忘权"）</li>
+                <li>要求删除您的数据（&ldquo;被遗忘权&rdquo;）</li>
                 <li>反对或限制特定数据处理</li>
                 <li>撤回同意</li>
               </ul>

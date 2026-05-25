@@ -27,7 +27,7 @@ export default function TermsPage() {
           <div className="prose prose-invert max-w-none space-y-8 text-gray-300 leading-relaxed">
             <Section title="1. 协议接受">
               通过访问或使用 Critical 网站、APP
-              或相关产品（以下统称"服务"），您即表示已阅读、理解并同意受本协议约束。如您不同意本协议任何条款，请勿使用本服务。
+              或相关产品（以下统称&ldquo;服务&rdquo;），您即表示已阅读、理解并同意受本协议约束。如您不同意本协议任何条款，请勿使用本服务。
             </Section>
 
             <Section title="2. 服务说明">
@@ -115,7 +115,8 @@ export default function TermsPage() {
             </Section>
 
             <Section title="10. 免责声明">
-              Critical 服务按"现状"提供。我们不保证服务始终可用、无错误或满足特定需求。OTA
+              Critical
+              服务按&ldquo;现状&rdquo;提供。我们不保证服务始终可用、无错误或满足特定需求。OTA
               升级、第三方集成等可能受外部因素影响。
             </Section>
 
