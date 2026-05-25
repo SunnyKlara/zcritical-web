@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, type FormEvent, type KeyboardEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { MessageCircle, Send, X, Wifi, WifiOff } from 'lucide-react'
 import { io, type Socket } from 'socket.io-client'
 import { ensureChatSession, type StoredSession } from '@/lib/chat-session'
@@ -14,6 +15,7 @@ const BACKEND_URL = env.NEXT_PUBLIC_BACKEND_URL
 type ConnectStatus = 'idle' | 'connecting' | 'connected' | 'disconnected' | 'error'
 
 export default function ChatWidget() {
+  const t = useTranslations('Chat')
   const [open, setOpen] = useState(false)
   const [session, setSession] = useState<StoredSession | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -159,7 +161,7 @@ export default function ChatWidget() {
       {/* Floating button */}
       <button
         onClick={() => setOpen((o) => !o)}
-        aria-label={open ? '关闭客服聊天' : '打开客服聊天'}
+        aria-label={open ? t('closeLabel') : t('openLabel')}
         aria-expanded={open}
         className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${
           open
@@ -191,7 +193,7 @@ export default function ChatWidget() {
             transition={{ duration: 0.2 }}
             className="fixed bottom-20 right-4 sm:bottom-24 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-96 h-[32rem] max-h-[calc(100vh-8rem)] flex flex-col glass-card overflow-hidden shadow-2xl"
             role="dialog"
-            aria-label="客服聊天窗口"
+            aria-label={t('title')}
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-dark-800/50">
@@ -200,22 +202,22 @@ export default function ChatWidget() {
                   <span className="text-primary text-xs font-bold">C</span>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-white">Critical 客服</p>
+                  <p className="text-sm font-medium text-white">{t('title')}</p>
                   <p className="text-[10px] text-gray-500 flex items-center gap-1">
                     {status === 'connected' ? (
                       <>
                         <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                        在线
+                        {t('online')}
                       </>
                     ) : status === 'connecting' ? (
                       <>
                         <Wifi className="w-2.5 h-2.5 animate-pulse" />
-                        连接中
+                        {t('connecting')}
                       </>
                     ) : (
                       <>
                         <WifiOff className="w-2.5 h-2.5" />
-                        离线
+                        {t('offline')}
                       </>
                     )}
                   </p>
@@ -228,8 +230,8 @@ export default function ChatWidget() {
               {messages.length === 0 && status === 'connected' && (
                 <div className="text-center py-8">
                   <MessageCircle className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-                  <p className="text-sm text-gray-400 mb-1">欢迎来到 Critical</p>
-                  <p className="text-xs text-gray-500">有任何问题？随时告诉我们</p>
+                  <p className="text-sm text-gray-400 mb-1">{t('welcomeTitle')}</p>
+                  <p className="text-xs text-gray-500">{t('welcomeDesc')}</p>
                 </div>
               )}
 
@@ -270,23 +272,25 @@ export default function ChatWidget() {
                     handleTyping()
                   }}
                   onKeyDown={handleKeyDown}
-                  placeholder={status === 'connected' ? '输入消息... (Enter 发送)' : '正在连接...'}
+                  placeholder={
+                    status === 'connected' ? t('placeholder') : t('placeholderConnecting')
+                  }
                   disabled={status !== 'connected'}
                   rows={1}
                   maxLength={2000}
                   className="flex-1 px-3 py-2 rounded-lg bg-dark-700/50 border border-white/10 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50 resize-none max-h-32"
-                  aria-label="消息输入框"
+                  aria-label={t('inputLabel')}
                 />
                 <button
                   type="submit"
                   disabled={!input.trim() || status !== 'connected'}
                   className="w-9 h-9 rounded-lg bg-primary text-dark-900 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:bg-primary-light flex-shrink-0"
-                  aria-label="发送消息"
+                  aria-label={t('sendLabel')}
                 >
                   <Send className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-[10px] text-gray-600 mt-2 text-center">我们的客服会尽快回复您</p>
+              <p className="text-[10px] text-gray-600 mt-2 text-center">{t('footer')}</p>
             </form>
           </motion.div>
         )}

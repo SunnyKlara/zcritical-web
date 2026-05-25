@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { setRequestLocale } from 'next-intl/server'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 
@@ -8,7 +9,8 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 }
 
-export default function TermsPage() {
+export default function TermsPage({ params }: { params: { locale: string } }) {
+  setRequestLocale(params.locale)
   const lastUpdated = '2026 年 5 月 26 日'
 
   return (

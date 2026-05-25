@@ -2,13 +2,10 @@ import type { Metadata } from 'next'
 import { Inter, Noto_Sans_SC, JetBrains_Mono } from 'next/font/google'
 import localFont from 'next/font/local'
 import { OrganizationSchema, WebSiteSchema } from '@/components/seo/StructuredData'
-import CookieConsent from '@/components/CookieConsent'
-import ChatWidgetWrapper from '@/components/ChatWidgetWrapper'
+import { ThemeProvider } from '@/components/ThemeProvider'
 import WebVitals from '@/components/WebVitals'
 import SentryInit from '@/components/SentryInit'
 import './globals.css'
-
-// ─── Fonts ───────────────────────────────────────────────────────────────────
 
 const inter = Inter({
   subsets: ['latin'],
@@ -35,54 +32,38 @@ const geistMono = localFont({
   weight: '100 900',
 })
 
-// ─── Metadata ────────────────────────────────────────────────────────────────
-
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://critical.bike'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Critical — 智能风洞模拟器 | 骑行沉浸体验',
+    default: 'Critical — Smart Wind Tunnel Simulator',
     template: '%s | Critical',
   },
   description:
-    'Critical 智能风洞模拟器，风速模拟+LED灯效+引擎音效+雾化器四维联动，APP蓝牙控制，打造极致骑行沉浸体验。',
-  keywords: [
-    '智能风洞',
-    '骑行模拟器',
-    'Critical',
-    'Wind Tunnel',
-    'Indoor Cycling',
-    'ESP32',
-    'BLE',
-    'OTA',
-  ],
+    'Critical smart wind tunnel simulator: wind speed, LED lighting, engine sound, fog effects with BLE app control.',
   authors: [{ name: 'Critical' }],
   creator: 'Critical',
   applicationName: 'Critical',
   alternates: {
     canonical: SITE_URL,
+    languages: {
+      'zh-CN': `${SITE_URL}/`,
+      'en-US': `${SITE_URL}/en`,
+      'x-default': SITE_URL,
+    },
   },
   openGraph: {
-    title: 'Critical — 智能风洞模拟器',
-    description: '风·光·声·雾 四维沉浸式骑行体验',
     type: 'website',
     siteName: 'Critical',
-    locale: 'zh_CN',
     images: [
       {
         url: '/images/og-cover.jpg',
         width: 1200,
         height: 630,
-        alt: 'Critical 智能风洞模拟器',
+        alt: 'Critical Smart Wind Tunnel Simulator',
       },
     ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Critical — 智能风洞模拟器',
-    description: '风·光·声·雾 四维沉浸式骑行体验',
-    images: ['/images/og-cover.jpg'],
   },
   robots: {
     index: true,
@@ -101,35 +82,25 @@ export const metadata: Metadata = {
   },
 }
 
-// ─── Root Layout ─────────────────────────────────────────────────────────────
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // Locale-specific lang attribute is handled by [locale]/layout via the
+  // `<html>` we emit here being overridden? Actually we MUST emit <html>/<body>
+  // here in the root layout (Next requirement). The [locale] layout adds
+  // NextIntlClientProvider on top.
   return (
-    <html lang="zh-CN" suppressHydrationWarning className="scroll-smooth">
+    <html suppressHydrationWarning className="scroll-smooth">
       <head>
         <OrganizationSchema />
         <WebSiteSchema />
       </head>
       <body
-        className={`
-          ${inter.variable}
-          ${notoSansSC.variable}
-          ${jetbrainsMono.variable}
-          ${geistMono.variable}
-          font-sans antialiased
-        `}
+        className={`${inter.variable} ${notoSansSC.variable} ${jetbrainsMono.variable} ${geistMono.variable} font-sans antialiased`}
       >
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg focus:font-medium focus:outline-none"
-        >
-          跳转到主内容
-        </a>
-        {children}
-        <ChatWidgetWrapper />
-        <CookieConsent />
-        <WebVitals />
-        <SentryInit />
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          {children}
+          <WebVitals />
+          <SentryInit />
+        </ThemeProvider>
       </body>
     </html>
   )

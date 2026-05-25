@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useLocale, useTranslations } from 'next-intl'
 import {
   Mail,
   Building,
@@ -13,10 +14,14 @@ import {
   AlertCircle,
 } from 'lucide-react'
 import { createLead, ApiError } from '@/lib/api'
+import { Link } from '@/i18n/navigation'
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
 export default function ContactForm() {
+  const t = useTranslations('Contact')
+  const tFooter = useTranslations('Footer')
+  const locale = useLocale()
   const [state, setState] = useState<FormState>('idle')
   const [errorMsg, setErrorMsg] = useState<string>('')
 
@@ -32,10 +37,9 @@ export default function ContactForm() {
       company: String(formData.get('company') || '') || undefined,
       phone: String(formData.get('phone') || '') || undefined,
       message: String(formData.get('message') || ''),
-      // Honeypot — must remain empty. Browsers fill, bots fill with junk.
       website: String(formData.get('website') || ''),
       source: 'website',
-      locale: 'zh' as const,
+      locale: locale as 'zh' | 'en',
     }
 
     try {
@@ -44,17 +48,12 @@ export default function ContactForm() {
       e.currentTarget.reset()
     } catch (err) {
       if (err instanceof ApiError) {
-        if (err.status === 429) {
-          setErrorMsg('提交过于频繁，请稍后再试')
-        } else if (err.status === 400) {
-          setErrorMsg('表单数据有误，请检查后重新提交')
-        } else if (err.status === 0) {
-          setErrorMsg('网络连接失败，请检查后端服务是否启动')
-        } else {
-          setErrorMsg(err.message || '提交失败，请稍后再试')
-        }
+        if (err.status === 429) setErrorMsg(t('errorRateLimit'))
+        else if (err.status === 400) setErrorMsg(t('errorValidation'))
+        else if (err.status === 0) setErrorMsg(t('errorNetwork'))
+        else setErrorMsg(err.message || t('errorGeneric'))
       } else {
-        setErrorMsg('未知错误，请稍后再试')
+        setErrorMsg(t('errorGeneric'))
       }
       setState('error')
     }
@@ -62,7 +61,6 @@ export default function ContactForm() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      {/* Success state */}
       <AnimatePresence mode="wait">
         {state === 'success' && (
           <motion.div
@@ -71,12 +69,14 @@ export default function ContactForm() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             className="glass-card p-8 text-center"
+            role="status"
+            aria-live="polite"
           >
-            <CheckCircle2 className="w-16 h-16 text-green-400 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-white mb-2">提交成功</h3>
-            <p className="text-gray-400 mb-6">我们已收到您的留言，会在 1-2 个工作日内联系您</p>
-            <button onClick={() => setState('idle')} className="btn-ghost">
-              再发一条
+            <CheckCircle2 className="w-16 h-16 text-green-400 mx-auto mb-4" aria-hidden />
+            <h3 className="text-2xl font-bold text-white mb-2">{t('successTitle')}</h3>
+            <p className="text-gray-400 mb-6">{t('successDesc')}</p>
+            <button onClick={() => setState('idle')} className="btn-ghost" type="button">
+              {t('sendAnother')}
             </button>
           </motion.div>
         )}
@@ -88,8 +88,9 @@ export default function ContactForm() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="glass-card p-6 sm:p-8 space-y-5"
+            noValidate
           >
-            {/* Honeypot — invisible to users, attractive to bots */}
+            {/* Honeypot */}
             <input
               type="text"
               name="website"
@@ -102,20 +103,20 @@ export default function ContactForm() {
             <div className="grid sm:grid-cols-2 gap-4">
               <FormField
                 icon={User}
-                label="姓名"
+                label={t('name')}
                 name="name"
                 type="text"
                 required
-                placeholder="您的称呼"
+                placeholder={t('namePlaceholder')}
                 disabled={state === 'submitting'}
               />
               <FormField
                 icon={Mail}
-                label="邮箱"
+                label={t('email')}
                 name="email"
                 type="email"
                 required
-                placeholder="example@email.com"
+                placeholder={t('emailPlaceholder')}
                 disabled={state === 'submitting'}
               />
             </div>
@@ -123,40 +124,40 @@ export default function ContactForm() {
             <div className="grid sm:grid-cols-2 gap-4">
               <FormField
                 icon={Building}
-                label="公司"
+                label={t('company')}
                 name="company"
                 type="text"
-                placeholder="可选"
+                placeholder={t('companyPlaceholder')}
                 disabled={state === 'submitting'}
               />
               <FormField
                 icon={Phone}
-                label="电话"
+                label={t('phone')}
                 name="phone"
                 type="tel"
-                placeholder="可选"
+                placeholder={t('phonePlaceholder')}
                 disabled={state === 'submitting'}
               />
             </div>
 
             <FormField
               icon={MessageSquare}
-              label="留言"
+              label={t('message')}
               name="message"
               required
-              placeholder="想了解什么？批发价格、技术细节、合作意向..."
+              placeholder={t('messagePlaceholder')}
               textarea
               disabled={state === 'submitting'}
             />
 
-            {/* Error message */}
             {state === 'error' && errorMsg && (
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-sm text-red-400"
+                role="alert"
               >
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden />
                 <span>{errorMsg}</span>
               </motion.div>
             )}
@@ -168,22 +169,25 @@ export default function ContactForm() {
             >
               {state === 'submitting' ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  提交中...
+                  <div
+                    className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"
+                    aria-hidden
+                  />
+                  {t('submitting')}
                 </>
               ) : (
                 <>
-                  <Send className="w-4 h-4" />
-                  发送留言
+                  <Send className="w-4 h-4" aria-hidden />
+                  {t('submit')}
                 </>
               )}
             </button>
 
             <p className="text-xs text-gray-600 text-center">
-              提交即表示您同意我们的{' '}
-              <a href="#" className="underline hover:text-gray-400">
-                隐私政策
-              </a>
+              {t('privacyConsent')}{' '}
+              <Link href="/privacy" className="underline hover:text-gray-400">
+                {tFooter('privacy')}
+              </Link>
             </p>
           </motion.form>
         )}
@@ -191,8 +195,6 @@ export default function ContactForm() {
     </div>
   )
 }
-
-// ─── Form Field component ────────────────────────────────────────────────────
 
 interface FormFieldProps {
   icon: React.ComponentType<{ className?: string }>
@@ -215,32 +217,42 @@ function FormField({
   disabled = false,
   textarea = false,
 }: FormFieldProps) {
+  const id = `contact-${name}`
   return (
-    <label className="block">
-      <span className="flex items-center gap-1.5 text-xs font-medium text-gray-400 mb-1.5">
-        <Icon className="w-3.5 h-3.5" />
+    <div className="block">
+      <label
+        htmlFor={id}
+        className="flex items-center gap-1.5 text-xs font-medium text-gray-400 mb-1.5"
+      >
+        <Icon className="w-3.5 h-3.5" aria-hidden />
         {label}
-        {required && <span className="text-primary">*</span>}
-      </span>
+        {required && (
+          <span className="text-primary" aria-label="required">
+            *
+          </span>
+        )}
+      </label>
       {textarea ? (
         <textarea
+          id={id}
           name={name}
           required={required}
           placeholder={placeholder}
           disabled={disabled}
           rows={4}
-          className="w-full px-3 py-2.5 rounded-lg bg-dark-800/50 border border-white/10 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50 resize-none"
+          className="w-full px-3 py-2.5 rounded-lg bg-dark-800/50 border border-white/10 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary transition-colors disabled:opacity-50 resize-none"
         />
       ) : (
         <input
+          id={id}
           name={name}
           type={type}
           required={required}
           placeholder={placeholder}
           disabled={disabled}
-          className="w-full px-3 py-2.5 rounded-lg bg-dark-800/50 border border-white/10 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+          className="w-full px-3 py-2.5 rounded-lg bg-dark-800/50 border border-white/10 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary transition-colors disabled:opacity-50"
         />
       )}
-    </label>
+    </div>
   )
 }
