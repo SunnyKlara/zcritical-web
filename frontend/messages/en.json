@@ -1,0 +1,138 @@
+{
+  "Brand": {
+    "name": "Critical",
+    "tagline": "Smart Wind Tunnel Simulator",
+    "longTagline": "Wind · Light · Sound · Fog — Four-dimensional immersive cycling"
+  },
+  "Nav": {
+    "home": "Home",
+    "product": "Product",
+    "features": "Features",
+    "app": "App",
+    "specs": "Specs",
+    "useCases": "Use Cases",
+    "contact": "Contact",
+    "download": "Download",
+    "support": "Support",
+    "blog": "Blog",
+    "buyNow": "Buy Now",
+    "menu": "Menu",
+    "more": "More",
+    "homeSection": "Home"
+  },
+  "Hero": {
+    "badge": "New",
+    "title": "Redefining indoor cycling",
+    "subtitle": "0-340 km/h wind simulation, smart lighting, engine sound and fog effects — ride as if you were on the track",
+    "ctaPrimary": "Learn more",
+    "ctaSecondary": "Watch demo"
+  },
+  "Footer": {
+    "brand": "Smart wind tunnel simulator. Immersive cycling experience.",
+    "product": "Product",
+    "company": "Download",
+    "contact": "Contact",
+    "email": "Email",
+    "copyright": "© {year} Critical. All rights reserved.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "warranty": "Warranty"
+  },
+  "Common": {
+    "loading": "Loading…",
+    "error": "Error",
+    "retry": "Retry",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "send": "Send",
+    "back": "Back",
+    "viewAll": "View all",
+    "comingSoon": "Coming soon",
+    "learnMore": "Learn more"
+  },
+  "Contact": {
+    "title": "Get in <accent>touch</accent>",
+    "subtitle": "Interested in wholesale, customization, or partnerships? Tell us and we'll get back to you soon.",
+    "name": "Name",
+    "namePlaceholder": "Your name",
+    "email": "Email",
+    "emailPlaceholder": "example@email.com",
+    "company": "Company",
+    "companyPlaceholder": "Optional",
+    "phone": "Phone",
+    "phonePlaceholder": "Optional",
+    "message": "Message",
+    "messagePlaceholder": "Tell us about your interest — wholesale, technical questions, partnerships...",
+    "submit": "Send message",
+    "submitting": "Sending…",
+    "successTitle": "Message sent",
+    "successDesc": "We've received your message and will reply within 1-2 business days.",
+    "sendAnother": "Send another",
+    "errorRateLimit": "Too many submissions, please try again later",
+    "errorValidation": "Please check your input and try again",
+    "errorNetwork": "Could not reach the server",
+    "errorGeneric": "Submission failed, please try again",
+    "privacyConsent": "By submitting, you agree to our <link>Privacy Policy</link>"
+  },
+  "Newsletter": {
+    "title": "Stay in the <accent>loop</accent>",
+    "subtitle": "Get product updates, firmware releases, and exclusive offers delivered to your inbox. We respect your privacy and you can unsubscribe anytime.",
+    "placeholder": "your@email.com",
+    "submit": "Subscribe",
+    "successMsg": "Thanks for subscribing!",
+    "errorRateLimit": "Too many requests, please try again later",
+    "errorValidation": "Invalid email format",
+    "errorGeneric": "Subscription failed, please try again",
+    "privacy": "By subscribing, you agree to our <link>Privacy Policy</link>. No spam, ever."
+  },
+  "Cookie": {
+    "title": "We use cookies",
+    "description": "Critical uses essential cookies for security and functionality (CSRF protection, session management). We do not use tracking or advertising cookies. See our <link>Privacy Policy</link>.",
+    "accept": "Accept all",
+    "reject": "Essential only",
+    "close": "Close"
+  },
+  "Chat": {
+    "title": "Critical Support",
+    "online": "Online",
+    "connecting": "Connecting",
+    "offline": "Offline",
+    "welcomeTitle": "Welcome to Critical",
+    "welcomeDesc": "Have a question? We're here to help",
+    "placeholder": "Type a message... (Enter to send)",
+    "placeholderConnecting": "Connecting...",
+    "footer": "Our team will reply as soon as possible",
+    "openLabel": "Open support chat",
+    "closeLabel": "Close support chat",
+    "openButtonLabel": "Chat"
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved. Let's get you back on track.",
+    "backHome": "Back to home",
+    "viewSupport": "Visit support"
+  },
+  "ErrorPage": {
+    "title": "Something went wrong",
+    "description": "An error occurred and our engineers have been notified.",
+    "errorId": "Error ID: {id}",
+    "retry": "Retry",
+    "backHome": "Back to home"
+  },
+  "SkipLink": {
+    "label": "Skip to main content"
+  },
+  "Theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "toggle": "Toggle theme"
+  },
+  "LocaleSwitcher": {
+    "label": "Switch language",
+    "zh": "中文",
+    "en": "English"
+  }
+}

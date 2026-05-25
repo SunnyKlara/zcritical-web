@@ -1,0 +1,44 @@
+# 本地开发环境 — 一键启动 MongoDB
+# 使用：
+#   docker compose -f docker-compose.dev.yml up -d
+#   pnpm --filter backend dev
+#
+# 停止：
+#   docker compose -f docker-compose.dev.yml down
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: critical-mongo-dev
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: critical
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MongoDB 管理界面 (访问 http://localhost:8081)
+  # 默认账号 admin / pass
+  mongo-express:
+    image: mongo-express:1.0
+    container_name: critical-mongo-express
+    restart: unless-stopped
+    ports:
+      - '8081:8081'
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: pass
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  mongo-data:

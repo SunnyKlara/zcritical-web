@@ -1,0 +1,138 @@
+{
+  "Brand": {
+    "name": "Critical",
+    "tagline": "智能风洞模拟器",
+    "longTagline": "风·光·声·雾 四维沉浸式骑行体验"
+  },
+  "Nav": {
+    "home": "首页",
+    "product": "产品",
+    "features": "功能",
+    "app": "APP",
+    "specs": "规格",
+    "useCases": "场景",
+    "contact": "联系",
+    "download": "下载",
+    "support": "帮助",
+    "blog": "动态",
+    "buyNow": "立即购买",
+    "menu": "菜单",
+    "more": "更多",
+    "homeSection": "首页"
+  },
+  "Hero": {
+    "badge": "全新上市",
+    "title": "重新定义室内骑行",
+    "subtitle": "0-340km/h 风速模拟、智能灯效、引擎音效与雾化氛围 — 让每一次踩踏都如同身临赛道",
+    "ctaPrimary": "了解更多",
+    "ctaSecondary": "观看演示"
+  },
+  "Footer": {
+    "brand": "智能风洞模拟器，沉浸式骑行体验",
+    "product": "产品",
+    "company": "下载",
+    "contact": "联系我们",
+    "email": "邮箱",
+    "copyright": "© {year} Critical. 保留所有权利。",
+    "privacy": "隐私政策",
+    "terms": "用户协议",
+    "warranty": "保修条款"
+  },
+  "Common": {
+    "loading": "加载中…",
+    "error": "出错了",
+    "retry": "重试",
+    "close": "关闭",
+    "save": "保存",
+    "cancel": "取消",
+    "submit": "提交",
+    "send": "发送",
+    "back": "返回",
+    "viewAll": "查看全部",
+    "comingSoon": "即将推出",
+    "learnMore": "了解更多"
+  },
+  "Contact": {
+    "title": "联系<accent>我们</accent>",
+    "subtitle": "有兴趣批发、定制或合作？告诉我们，我们会尽快联系您",
+    "name": "姓名",
+    "namePlaceholder": "您的称呼",
+    "email": "邮箱",
+    "emailPlaceholder": "example@email.com",
+    "company": "公司",
+    "companyPlaceholder": "可选",
+    "phone": "电话",
+    "phonePlaceholder": "可选",
+    "message": "留言",
+    "messagePlaceholder": "想了解什么？批发价格、技术细节、合作意向...",
+    "submit": "发送留言",
+    "submitting": "提交中…",
+    "successTitle": "提交成功",
+    "successDesc": "我们已收到您的留言，会在 1-2 个工作日内联系您",
+    "sendAnother": "再发一条",
+    "errorRateLimit": "提交过于频繁，请稍后再试",
+    "errorValidation": "表单数据有误，请检查后重新提交",
+    "errorNetwork": "网络连接失败，请检查后端服务是否启动",
+    "errorGeneric": "提交失败，请稍后再试",
+    "privacyConsent": "提交即表示您同意我们的<link>隐私政策</link>"
+  },
+  "Newsletter": {
+    "title": "订阅产品<accent>动态</accent>",
+    "subtitle": "新功能发布、固件升级、限时优惠 — 第一时间送达您的邮箱。我们尊重您的隐私，可随时退订。",
+    "placeholder": "your@email.com",
+    "submit": "订阅",
+    "successMsg": "订阅成功！感谢您的关注",
+    "errorRateLimit": "订阅过于频繁，请稍后再试",
+    "errorValidation": "邮箱格式有误",
+    "errorGeneric": "订阅失败，请稍后再试",
+    "privacy": "提交即表示您同意我们的<link>隐私政策</link>。我们保证不发送垃圾邮件。"
+  },
+  "Cookie": {
+    "title": "我们使用 Cookie",
+    "description": "Critical 使用必要 Cookie 来保障网站安全和正常功能（如 CSRF 防护、会话管理）。我们不使用追踪或广告 Cookie。详见<link>隐私政策</link>。",
+    "accept": "接受全部",
+    "reject": "仅必要 Cookie",
+    "close": "关闭"
+  },
+  "Chat": {
+    "title": "Critical 客服",
+    "online": "在线",
+    "connecting": "连接中",
+    "offline": "离线",
+    "welcomeTitle": "欢迎来到 Critical",
+    "welcomeDesc": "有任何问题？随时告诉我们",
+    "placeholder": "输入消息... (Enter 发送)",
+    "placeholderConnecting": "正在连接...",
+    "footer": "我们的客服会尽快回复您",
+    "openLabel": "打开客服聊天",
+    "closeLabel": "关闭客服聊天",
+    "openButtonLabel": "客服"
+  },
+  "NotFound": {
+    "title": "页面飞走了",
+    "description": "您访问的页面不存在，或已被移到其他位置。先回首页看看？",
+    "backHome": "返回首页",
+    "viewSupport": "查看帮助"
+  },
+  "ErrorPage": {
+    "title": "出错了",
+    "description": "页面遇到了一个错误，工程师已收到通知。",
+    "errorId": "错误编号：{id}",
+    "retry": "重试",
+    "backHome": "返回首页"
+  },
+  "SkipLink": {
+    "label": "跳转到主内容"
+  },
+  "Theme": {
+    "light": "浅色",
+    "dark": "暗色",
+    "system": "跟随系统",
+    "toggle": "切换主题"
+  },
+  "LocaleSwitcher": {
+    "label": "切换语言",
+    "zh": "中文",
+    "en": "English"
+  }
+}

@@ -1,0 +1,387 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   CRITICAL DESIGN SYSTEM — Design Tokens & Global Styles
+   Brand: 科技感 · 速度感 · 沉浸感
+   References: Tesla (simplicity) + Razer (dark tech) + Apple (product showcase)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ─── CSS Custom Properties (Design Tokens) ─── */
+:root {
+  /* Background */
+  --background: #0A0A0A;
+  --background-end: #1A1A2E;
+  --foreground: #FFFFFF;
+
+  /* Brand Colors */
+  --color-primary: #00D4FF;
+  --color-primary-dark: #00A3CC;
+  --color-primary-light: #66E5FF;
+  --color-accent: #FF3B30;
+  --color-accent-dark: #CC2F26;
+
+  /* Text Hierarchy */
+  --text-primary: #FFFFFF;
+  --text-secondary: #A0A0B0;
+  --text-tertiary: #6B6B80;
+  --text-muted: #4A4A5A;
+
+  /* Surface */
+  --surface-card: rgba(255, 255, 255, 0.05);
+  --surface-card-hover: rgba(255, 255, 255, 0.08);
+  --surface-border: rgba(255, 255, 255, 0.1);
+  --surface-border-hover: rgba(255, 255, 255, 0.15);
+
+  /* Spacing */
+  --section-spacing: 120px;
+  --card-gap: 24px;
+  --content-max-width: 1200px;
+
+  /* Motion */
+  --duration-hover: 300ms;
+  --duration-enter: 600ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Radius */
+  --radius-card: 16px;
+  --radius-card-lg: 24px;
+  --radius-button: 12px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --section-spacing: 80px;
+  }
+}
+
+/* ─── Base Styles ─── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  /* Subtle gradient from near-black to deep blue-black */
+  background-image: linear-gradient(
+    180deg,
+    var(--background) 0%,
+    var(--background-end) 50%,
+    var(--background) 100%
+  );
+  background-attachment: fixed;
+}
+
+/* ─── Typography Base ─── */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* ─── Utility Classes ─── */
+@layer utilities {
+  /* Text gradient — brand primary */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-400;
+  }
+
+  /* Text gradient — accent (speed) */
+  .text-gradient-accent {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-accent to-orange-400;
+  }
+
+  /* Glow effects */
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), 0 0 60px rgba(0, 212, 255, 0.1);
+  }
+
+  .glow-primary-strong {
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.5), 0 0 80px rgba(0, 212, 255, 0.2);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 20px rgba(255, 59, 48, 0.3), 0 0 60px rgba(255, 59, 48, 0.1);
+  }
+
+  .border-glow {
+    border: 1px solid rgba(0, 212, 255, 0.3);
+  }
+
+  /* Glass morphism */
+  .glass {
+    @apply bg-dark-800/60 backdrop-blur-xl border border-white/5;
+  }
+
+  .glass-card {
+    background: var(--surface-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-card);
+    transition: all var(--duration-hover) var(--ease-smooth);
+  }
+
+  .glass-card:hover {
+    background: var(--surface-card-hover);
+    border-color: var(--surface-border-hover);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 212, 255, 0.05);
+    transform: scale(1.02);
+  }
+
+  /* Section spacing utility */
+  .section-padding {
+    padding-top: var(--section-spacing);
+    padding-bottom: var(--section-spacing);
+  }
+
+  /* Content container */
+  .content-container {
+    max-width: var(--content-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .content-container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .content-container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  /* Mono text for specs/numbers */
+  .text-spec {
+    font-family: var(--font-jetbrains-mono), var(--font-geist-mono), monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Animation play state control (for performance) */
+  .\[\&_\*\]\:paused * {
+    animation-play-state: paused !important;
+  }
+  .\[\&_\*\]\:running * {
+    animation-play-state: running;
+  }
+}
+
+/* ─── Component Layer ─── */
+@layer components {
+  /* CTA Button — Primary */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           px-6 py-3 rounded-button
+           bg-primary text-dark-900 font-semibold text-sm
+           transition-all duration-hover;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+  }
+
+  .btn-primary:hover {
+    @apply bg-primary-light;
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.5), 0 0 60px rgba(0, 212, 255, 0.2);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  /* CTA Button — Ghost/Outline */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2
+           px-6 py-3 rounded-button
+           bg-transparent border border-white/20 text-white font-medium text-sm
+           transition-all duration-hover;
+  }
+
+  .btn-ghost:hover {
+    @apply border-primary/50 text-primary;
+    background: rgba(0, 212, 255, 0.05);
+  }
+
+  /* Section header pattern */
+  .section-header {
+    @apply text-center mb-16;
+  }
+
+  .section-title {
+    @apply text-3xl sm:text-4xl lg:text-5xl font-bold mb-4;
+  }
+
+  .section-subtitle {
+    @apply text-lg text-text-secondary max-w-2xl mx-auto;
+  }
+}
+
+/* ─── Custom Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* ─── Section Scroll Offset ─── */
+section {
+  scroll-margin-top: 80px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   FEATURE SECTION ANIMATIONS
+   Performance: Only animate transform & opacity (GPU-composited)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* 1. Wind gauge needle sweep */
+@keyframes needle-sweep {
+  0%, 100% { transform: rotate(-135deg); }
+  50% { transform: rotate(135deg); }
+}
+.animate-needle-sweep {
+  transform-origin: 50px 50px;
+  animation: needle-sweep 3s ease-in-out infinite;
+}
+
+/* Gauge arc fill */
+@keyframes gauge-fill {
+  0%, 100% { stroke-dashoffset: 207; }
+  50% { stroke-dashoffset: 20; }
+}
+.animate-gauge-fill {
+  animation: gauge-fill 3s ease-in-out infinite;
+}
+
+/* Speed counter */
+@keyframes speed-count {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.animate-speed-count {
+  animation: speed-count 3s ease-in-out infinite;
+}
+
+/* 2. LED cycle */
+@keyframes led-cycle {
+  0%, 100% { opacity: 0.3; transform: scaleY(0.5); }
+  50% { opacity: 1; transform: scaleY(1); }
+}
+.animate-led-cycle {
+  animation: led-cycle 1.5s ease-in-out infinite;
+}
+
+/* LED chase */
+@keyframes led-chase {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.animate-led-chase {
+  animation: led-chase 2s linear infinite;
+}
+
+/* 3. Audio waveform bars */
+@keyframes waveform {
+  0%, 100% { height: 8px; }
+  50% { height: 48px; }
+}
+.animate-waveform {
+  animation: waveform 1.2s ease-in-out infinite;
+}
+
+/* 4. WiFi signal dots */
+@keyframes wifi-dot {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+.animate-wifi-dot {
+  animation: wifi-dot 1.5s ease-in-out infinite;
+}
+
+/* 5. Fog particles */
+@keyframes fog-particle {
+  0% { opacity: 0; transform: translateY(10px) scale(0.8); }
+  40% { opacity: 0.6; }
+  100% { opacity: 0; transform: translateY(-40px) scale(1.4); }
+}
+.animate-fog-particle {
+  animation: fog-particle 4s ease-out infinite;
+}
+
+/* 6. Round screen page carousel */
+@keyframes screenPage {
+  0%, 10% { opacity: 0; transform: translateX(20px); }
+  12%, 22% { opacity: 1; transform: translateX(0); }
+  24%, 100% { opacity: 0; transform: translateX(-20px); }
+}
+
+/* 7. App button pulse */
+@keyframes app-btn {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; background-color: rgba(0, 212, 255, 0.15); }
+}
+.animate-app-btn {
+  animation: app-btn 2s ease-in-out infinite;
+}
+
+/* 8. OTA progress bar */
+@keyframes ota-progress {
+  0% { width: 0%; }
+  80% { width: 92%; }
+  100% { width: 100%; }
+}
+.animate-ota-progress {
+  animation: ota-progress 4s ease-out infinite;
+}
+
+/* Version bump */
+@keyframes version-bump {
+  0%, 80% { opacity: 0.4; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(-2px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-version-bump {
+  animation: version-bump 4s ease-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   ACCESSIBILITY & FALLBACKS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Ensure content is visible even if JS fails to load */
+@media (scripting: none) {
+  [style*="opacity: 0"],
+  [style*="opacity:0"] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

@@ -1,0 +1,51 @@
+# syntax=docker/dockerfile:1.6
+# Multi-stage build for Critical backend.
+# Builds shared + backend as a pnpm workspace.
+
+# ---------- Stage 1: deps + build ----------
+FROM node:20-alpine AS builder
+
+# Install pnpm via corepack (matches root package.json#packageManager)
+RUN corepack enable && corepack prepare pnpm@9.12.0 --activate
+
+WORKDIR /app
+
+# Copy workspace manifests first (better cache hit on dep changes)
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
+COPY shared/package.json ./shared/
+COPY backend/package.json ./backend/
+
+# Install ONLY what backend + shared need
+RUN pnpm install --frozen-lockfile --prod=false \
+  --filter backend... \
+  --filter @critical/shared
+
+# Copy source
+COPY shared ./shared
+COPY backend ./backend
+
+# Build backend (produces backend/dist)
+RUN pnpm --filter backend build
+
+# Prune to production deps only
+RUN pnpm --filter backend deploy --prod /app/deploy
+
+# ---------- Stage 2: runtime ----------
+FROM node:20-alpine AS runtime
+
+WORKDIR /app
+
+# Non-root user for security
+RUN addgroup -S app && adduser -S app -G app
+
+COPY --from=builder --chown=app:app /app/deploy/dist ./dist
+COPY --from=builder --chown=app:app /app/deploy/node_modules ./node_modules
+COPY --from=builder --chown=app:app /app/deploy/package.json ./package.json
+
+USER app
+
+ENV NODE_ENV=production
+EXPOSE 4000
+
+# Render injects $PORT — fall through to env config
+CMD ["node", "dist/index.js"]
