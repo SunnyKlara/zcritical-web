@@ -13,6 +13,7 @@ import { healthRouter } from './routes/health.routes'
 import { leadRouter } from './routes/lead.routes'
 import { authRouter } from './routes/auth.routes'
 import { chatRouter } from './routes/chat.routes'
+import { openapiRouter } from './routes/openapi.routes'
 import { errorHandler, notFoundHandler } from './middleware/error.middleware'
 import { csrfCookieSetter, csrfProtection } from './middleware/csrf.middleware'
 import { requestId } from './middleware/request-id.middleware'
@@ -119,6 +120,7 @@ export function createServer(): {
 
   // ─── Routes ────────────────────────────────────────────────────────────────
   app.use('/api', healthRouter)
+  app.use('/api', openapiRouter)
   app.use('/api/auth', authRouter)
   app.use('/api/leads', leadRouter)
   app.use('/api/chat', chatRouter)

@@ -1,0 +1,117 @@
+version: 2
+
+updates:
+  # Frontend
+  - package-ecosystem: npm
+    directory: '/frontend'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Asia/Shanghai
+    open-pull-requests-limit: 5
+    versioning-strategy: increase-if-necessary
+    commit-message:
+      prefix: chore
+      prefix-development: chore
+      include: scope
+    labels:
+      - dependencies
+      - frontend
+    groups:
+      next-stack:
+        patterns:
+          - 'next*'
+          - '@next/*'
+          - 'react'
+          - 'react-dom'
+          - '@types/react*'
+      eslint:
+        patterns:
+          - 'eslint*'
+          - '@typescript-eslint/*'
+      types:
+        patterns:
+          - '@types/*'
+
+  # Backend
+  - package-ecosystem: npm
+    directory: '/backend'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Asia/Shanghai
+    open-pull-requests-limit: 5
+    versioning-strategy: increase-if-necessary
+    commit-message:
+      prefix: chore
+      prefix-development: chore
+      include: scope
+    labels:
+      - dependencies
+      - backend
+    groups:
+      sentry:
+        patterns:
+          - '@sentry/*'
+      eslint:
+        patterns:
+          - 'eslint*'
+          - '@typescript-eslint/*'
+
+  # Shared
+  - package-ecosystem: npm
+    directory: '/shared'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Asia/Shanghai
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: chore
+      include: scope
+    labels:
+      - dependencies
+      - shared
+
+  # Root
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Asia/Shanghai
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: chore
+      include: scope
+    labels:
+      - dependencies
+      - root
+
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: ci
+    labels:
+      - dependencies
+      - ci
+
+  # Docker
+  - package-ecosystem: docker
+    directory: '/docker'
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: chore
+    labels:
+      - dependencies
+      - docker

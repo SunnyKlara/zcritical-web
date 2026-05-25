@@ -1,6 +1,10 @@
 import createNextIntlPlugin from "next-intl/plugin";
+import bundleAnalyzer from "@next/bundle-analyzer";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -11,7 +15,15 @@ const nextConfig = {
       { protocol: "https", hostname: "**.critical.bike" },
       { protocol: "https", hostname: "github.com" },
     ],
+    formats: ["image/avif", "image/webp"],
   },
+  // Production source maps disabled by default to reduce build size.
+  // Sentry separately uploads source maps via SENTRY_AUTH_TOKEN.
+  productionBrowserSourceMaps: false,
+  // Generate ETags for HTTP caching
+  generateEtags: true,
+  // Compression handled at edge (Vercel/Cloudflare) — disable Next runtime compression
+  compress: false,
   async headers() {
     return [
       {
@@ -35,8 +47,12 @@ const nextConfig = {
         source: "/icons/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
+      {
+        source: "/icon.svg",
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400" }],
+      },
     ];
   },
 };
 
-export default withNextIntl(nextConfig);
+export default withBundleAnalyzer(withNextIntl(nextConfig));

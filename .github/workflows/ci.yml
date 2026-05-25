@@ -6,10 +6,13 @@ on:
   pull_request:
     branches: [main]
 
-# Cancel previous runs on the same branch when a new commit lands.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  PNPM_VERSION: 9
+  NODE_VERSION: 20
 
 jobs:
   quality:
@@ -22,29 +25,32 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: ${{ env.PNPM_VERSION }}
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Typecheck (all workspaces)
+      - name: Typecheck
         run: pnpm typecheck
 
-      - name: Lint (all workspaces)
+      - name: Lint
         run: pnpm lint
 
-      - name: Test (all workspaces)
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Test
         run: pnpm test
 
   build:
-    name: Build backend
+    name: Build
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     needs: quality
 
     steps:
@@ -52,17 +58,23 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: ${{ env.PNPM_VERSION }}
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
       - name: Build backend
         run: pnpm --filter backend build
+
+      - name: Build frontend
+        run: pnpm --filter frontend build
+        env:
+          NEXT_PUBLIC_BACKEND_URL: http://localhost:4000
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
 
   audit:
     name: Dependency audit
@@ -74,14 +86,49 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: ${{ env.PNPM_VERSION }}
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Audit (critical only — fails on critical CVEs)
+      - name: Audit (block critical CVEs)
         run: pnpm audit --audit-level=critical
+
+  lighthouse:
+    name: Lighthouse CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: build
+    # Run on PRs only — keep CI fast on push to main
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        run: pnpm --filter frontend build
+        env:
+          NEXT_PUBLIC_BACKEND_URL: http://localhost:4000
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+
+      - name: Lighthouse CI
+        working-directory: frontend
+        run: |
+          npm install -g @lhci/cli@0.14.x
+          lhci autorun || echo "Lighthouse warnings allowed in V1"
+        continue-on-error: true
