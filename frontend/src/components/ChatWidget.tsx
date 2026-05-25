@@ -6,9 +6,10 @@ import { MessageCircle, Send, X, Wifi, WifiOff } from 'lucide-react'
 import { io, type Socket } from 'socket.io-client'
 import { ensureChatSession, type StoredSession } from '@/lib/chat-session'
 import { apiFetch } from '@/lib/api'
+import { env } from '@/lib/env'
 import { SOCKET_EVENTS, type Message } from '@critical/shared'
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:4000'
+const BACKEND_URL = env.NEXT_PUBLIC_BACKEND_URL
 
 type ConnectStatus = 'idle' | 'connecting' | 'connected' | 'disconnected' | 'error'
 
@@ -31,7 +32,6 @@ export default function ChatWidget() {
 
     let cancelled = false
     setStatus('connecting')
-
     ;(async () => {
       try {
         const sess = await ensureChatSession()
@@ -48,16 +48,32 @@ export default function ChatWidget() {
           // No history yet — that's fine
         }
 
-        // Connect socket
+        // Connect socket with auto-reconnect (built into socket.io-client)
         const socket = io(BACKEND_URL, {
           auth: { sessionToken: sess.sessionToken },
           transports: ['websocket', 'polling'],
+          reconnection: true,
+          reconnectionAttempts: Infinity,
+          reconnectionDelay: 1000, // 1s initial
+          reconnectionDelayMax: 30_000, // cap at 30s
+          randomizationFactor: 0.5,
+          timeout: 20_000,
         })
         socketRef.current = socket
 
         socket.on('connect', () => setStatus('connected'))
-        socket.on('disconnect', () => setStatus('disconnected'))
-        socket.on('connect_error', () => setStatus('error'))
+        socket.on('disconnect', (reason) => {
+          // 'io server disconnect' = server kicked us, manual reconnect needed
+          if (reason === 'io server disconnect') {
+            socket.connect()
+          }
+          setStatus('disconnected')
+        })
+        socket.on('connect_error', (err) => {
+          // eslint-disable-next-line no-console
+          console.warn('chat connect_error:', err.message)
+          setStatus('error')
+        })
 
         socket.on(SOCKET_EVENTS.MESSAGE, (msg: Message) => {
           setMessages((prev) => [...prev, msg])

@@ -6,9 +6,10 @@ import Link from 'next/link'
 import { ArrowLeft, Send, MessageCircle } from 'lucide-react'
 import { io, type Socket } from 'socket.io-client'
 import { useAuth, authFetch } from '@/lib/auth-context'
+import { env } from '@/lib/env'
 import { SOCKET_EVENTS, type Message } from '@critical/shared'
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:4000'
+const BACKEND_URL = env.NEXT_PUBLIC_BACKEND_URL
 
 interface SessionRow {
   sessionId: string

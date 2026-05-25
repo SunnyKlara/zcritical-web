@@ -11,5 +11,19 @@ export const logger = pino({
         },
       }
     : {}),
-  redact: ['req.headers.authorization', 'req.headers.cookie', '*.password', '*.token'],
+  // Redact sensitive fields from logs — never leak credentials or PII.
+  redact: {
+    paths: [
+      'req.headers.authorization',
+      'req.headers.cookie',
+      'req.headers["x-csrf-token"]',
+      'res.headers["set-cookie"]',
+      '*.password',
+      '*.passwordHash',
+      '*.token',
+      '*.accessToken',
+      '*.refreshToken',
+    ],
+    censor: '[REDACTED]',
+  },
 })

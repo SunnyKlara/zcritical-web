@@ -1,0 +1,30 @@
+# CODEOWNERS — auto-assigns reviewers based on file paths.
+# Order matters: later patterns override earlier ones.
+# Reference: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default fallback — owner of repo reviews everything not otherwise specified.
+* @SunnyKlara
+
+# Frontend
+/frontend/        @SunnyKlara
+
+# Backend & infrastructure
+/backend/         @SunnyKlara
+/docker/          @SunnyKlara
+/render.yaml      @SunnyKlara
+/.github/         @SunnyKlara
+
+# Shared contracts — changes here affect both frontend and backend
+/shared/          @SunnyKlara
+
+# Documentation
+/docs/            @SunnyKlara
+/README.md        @SunnyKlara
+/CONTRIBUTING.md  @SunnyKlara
+/SECURITY.md      @SunnyKlara
+
+# Security-sensitive files require extra scrutiny
+/backend/src/middleware/auth.middleware.ts   @SunnyKlara
+/backend/src/middleware/csrf.middleware.ts   @SunnyKlara
+/backend/src/services/token.service.ts       @SunnyKlara
+/backend/src/services/auth.service.ts        @SunnyKlara

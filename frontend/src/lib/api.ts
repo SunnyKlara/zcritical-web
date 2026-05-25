@@ -1,12 +1,13 @@
 /**
  * Backend API client for Critical website.
  *
- * Reads `NEXT_PUBLIC_BACKEND_URL` from env. Falls back to localhost:4000 in dev.
+ * Reads `NEXT_PUBLIC_BACKEND_URL` from validated env.
  * All POST requests automatically include the CSRF token from cookie (set by
  * backend's csrfCookieSetter middleware).
  */
+import { env } from './env'
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:4000'
+const BACKEND_URL = env.NEXT_PUBLIC_BACKEND_URL
 
 export class ApiError extends Error {
   constructor(
