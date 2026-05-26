@@ -147,5 +147,63 @@
     "label": "Switch language",
     "zh": "中文",
     "en": "English"
+  },
+  "Checkout": {
+    "title": "Checkout",
+    "summary": "Order summary",
+    "shippingAddress": "Shipping address",
+    "fullName": "Full name",
+    "line1": "Address",
+    "line2": "Apt / Suite (optional)",
+    "city": "City",
+    "state": "State / Province",
+    "postalCode": "Postal code",
+    "country": "Country",
+    "phone": "Phone (optional)",
+    "email": "Email",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "total": "Total",
+    "payButton": "Pay with PayPal — {amount}",
+    "submitting": "Creating order…",
+    "secureNote": "Secure checkout · 180-day buyer protection",
+    "errorGeneric": "Could not create order. Please try again.",
+    "errorOutOfStock": "One or more items are out of stock.",
+    "errorRateLimit": "Too many requests, please slow down."
+  },
+  "CheckoutSuccess": {
+    "title": "Thanks for your order!",
+    "processing": "Confirming payment…",
+    "orderNo": "Order number",
+    "viewOrderCta": "Track your order",
+    "errorTitle": "Payment confirmation failed",
+    "errorDesc": "We couldn't confirm your payment. Please contact support with your PayPal transaction ID."
+  },
+  "CheckoutCancel": {
+    "title": "Payment cancelled",
+    "desc": "Your order was not completed. You can return to checkout to try again.",
+    "back": "Back to checkout"
+  },
+  "OrderLookup": {
+    "title": "Track your order",
+    "subtitle": "Enter the email and order number you received in your confirmation.",
+    "email": "Email",
+    "orderNo": "Order number",
+    "submit": "Look up order",
+    "submitting": "Searching…",
+    "errorNotFound": "Order not found. Check your email and order number.",
+    "errorGeneric": "Could not look up order. Please try again.",
+    "status": "Status",
+    "shippingCarrier": "Carrier",
+    "tracking": "Tracking number",
+    "trackOnCarrier": "Track on carrier site",
+    "items": "Items",
+    "back": "Look up another order",
+    "statusPendingPayment": "Awaiting payment",
+    "statusPaid": "Paid",
+    "statusShipped": "Shipped",
+    "statusDelivered": "Delivered",
+    "statusCancelled": "Cancelled",
+    "statusRefunded": "Refunded"
   }
 }

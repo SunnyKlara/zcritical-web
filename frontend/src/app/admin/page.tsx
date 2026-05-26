@@ -13,6 +13,7 @@ import {
   XCircle,
   ArrowRight,
   MessageCircle,
+  Package,
 } from 'lucide-react'
 import { useAuth, authFetch } from '@/lib/auth-context'
 
@@ -73,6 +74,13 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <Link
+              href="/admin/orders"
+              className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-gray-300 hover:border-white/30 hover:text-white transition-colors flex items-center gap-1.5"
+            >
+              <Package className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">订单</span>
+            </Link>
             <Link
               href="/admin/chat"
               className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-gray-300 hover:border-white/30 hover:text-white transition-colors flex items-center gap-1.5"

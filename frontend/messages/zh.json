@@ -147,5 +147,63 @@
     "label": "切换语言",
     "zh": "中文",
     "en": "English"
+  },
+  "Checkout": {
+    "title": "结算",
+    "summary": "订单概览",
+    "shippingAddress": "收货地址",
+    "fullName": "收件人姓名",
+    "line1": "详细地址",
+    "line2": "门牌 / 套间（可选）",
+    "city": "城市",
+    "state": "省 / 州",
+    "postalCode": "邮政编码",
+    "country": "国家 / 地区",
+    "phone": "联系电话（可选）",
+    "email": "邮箱",
+    "subtotal": "商品小计",
+    "shipping": "运费",
+    "total": "应付总额",
+    "payButton": "使用 PayPal 付款 — {amount}",
+    "submitting": "正在创建订单…",
+    "secureNote": "安全结算 · PayPal 180 天买家保护",
+    "errorGeneric": "无法创建订单，请稍后再试",
+    "errorOutOfStock": "一个或多个商品库存不足",
+    "errorRateLimit": "请求过于频繁，请稍后再试"
+  },
+  "CheckoutSuccess": {
+    "title": "感谢您的下单！",
+    "processing": "正在确认付款…",
+    "orderNo": "订单号",
+    "viewOrderCta": "查询订单状态",
+    "errorTitle": "付款确认失败",
+    "errorDesc": "我们无法确认您的付款。请提供 PayPal 交易号联系客服。"
+  },
+  "CheckoutCancel": {
+    "title": "付款已取消",
+    "desc": "您的订单未完成。可返回结算页重新尝试。",
+    "back": "返回结算"
+  },
+  "OrderLookup": {
+    "title": "订单查询",
+    "subtitle": "输入下单时填写的邮箱和订单确认邮件中的订单号。",
+    "email": "邮箱",
+    "orderNo": "订单号",
+    "submit": "查询订单",
+    "submitting": "查询中…",
+    "errorNotFound": "未找到订单，请核对邮箱和订单号",
+    "errorGeneric": "查询失败，请稍后再试",
+    "status": "状态",
+    "shippingCarrier": "物流商",
+    "tracking": "物流单号",
+    "trackOnCarrier": "在物流商网站查询",
+    "items": "商品",
+    "back": "查询其他订单",
+    "statusPendingPayment": "待付款",
+    "statusPaid": "已付款",
+    "statusShipped": "已发货",
+    "statusDelivered": "已送达",
+    "statusCancelled": "已取消",
+    "statusRefunded": "已退款"
   }
 }

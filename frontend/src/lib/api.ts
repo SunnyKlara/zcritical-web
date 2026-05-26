@@ -96,3 +96,80 @@ export async function createLead(input: CreateLeadInput): Promise<CreateLeadResp
     body: JSON.stringify(input),
   })
 }
+
+// ─── Product API ─────────────────────────────────────────────────────────────
+
+export async function listProducts<T>(): Promise<T[]> {
+  return apiFetch<T[]>('/api/products')
+}
+
+export async function getProduct<T>(slug: string): Promise<T> {
+  return apiFetch<T>(`/api/products/${encodeURIComponent(slug)}`)
+}
+
+// ─── Order API ───────────────────────────────────────────────────────────────
+
+export interface CreateOrderInput {
+  email: string
+  locale: 'zh' | 'en'
+  items: { sku: string; quantity: number }[]
+  shippingAddress: {
+    fullName: string
+    line1: string
+    line2?: string
+    city: string
+    state: string
+    postalCode: string
+    country: string
+    phone?: string
+  }
+}
+
+export interface CreateOrderResponse {
+  orderNo: string
+  total: number
+  currency: string
+  approveUrl: string
+}
+
+export async function createOrder(input: CreateOrderInput): Promise<CreateOrderResponse> {
+  return apiFetch<CreateOrderResponse>('/api/orders', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export interface CapturePaymentResponse {
+  orderNo: string
+  status: string
+}
+
+export async function capturePayment(paypalOrderId: string): Promise<CapturePaymentResponse> {
+  return apiFetch<CapturePaymentResponse>('/api/orders/payments/paypal/capture', {
+    method: 'POST',
+    body: JSON.stringify({ paypalOrderId }),
+  })
+}
+
+export interface OrderLookupResult {
+  orderNo: string
+  status: string
+  total: number
+  currency: string
+  items: { name: string; sku: string; price: number; quantity: number; image: string }[]
+  shippingCity: string
+  shippingCountry: string
+  fulfillment?: {
+    carrier?: string
+    trackingNo?: string
+    trackingUrl?: string
+    shippedAt?: string
+  }
+  createdAt: string
+  paidAt?: string
+}
+
+export async function lookupOrder(email: string, orderNo: string): Promise<OrderLookupResult> {
+  const qs = new URLSearchParams({ email, orderNo })
+  return apiFetch<OrderLookupResult>(`/api/orders/lookup?${qs}`)
+}
