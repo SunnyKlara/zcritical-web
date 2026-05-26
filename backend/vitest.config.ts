@@ -16,5 +16,26 @@ export default defineConfig({
       JWT_REFRESH_SECRET: 'test-refresh-secret-at-least-32-characters-long',
       ADMIN_PASSWORD: 'test-admin-password',
     },
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      include: ['src/**/*.ts'],
+      exclude: [
+        'src/**/*.test.ts',
+        'src/__tests__/**',
+        'src/index.ts',
+        'src/instrumentation.ts',
+        'src/server.ts',
+        'src/scripts/**',
+        'src/lib/sentry.ts',
+      ],
+      // Realistic v1.0 baseline. Raise thresholds as tests grow.
+      thresholds: {
+        lines: 35,
+        functions: 30,
+        branches: 50,
+        statements: 35,
+      },
+    },
   },
 })

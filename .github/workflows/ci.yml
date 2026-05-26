@@ -47,8 +47,8 @@ jobs:
       - name: Check i18n key consistency
         run: pnpm --filter frontend check-i18n
 
-      - name: Test
-        run: pnpm test
+      - name: Test (with coverage thresholds)
+        run: pnpm test:coverage
 
   build:
     name: Build
