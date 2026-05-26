@@ -31,13 +31,9 @@ export async function cleanupExpiredOrders(): Promise<number> {
 export function startOrderCleanup(): void {
   if (intervalHandle) return
   // Run once on boot then on interval
-  void cleanupExpiredOrders().catch((err) =>
-    logger.error({ err }, 'Initial order cleanup failed'),
-  )
+  void cleanupExpiredOrders().catch((err) => logger.error({ err }, 'Initial order cleanup failed'))
   intervalHandle = setInterval(() => {
-    void cleanupExpiredOrders().catch((err) =>
-      logger.error({ err }, 'Order cleanup tick failed'),
-    )
+    void cleanupExpiredOrders().catch((err) => logger.error({ err }, 'Order cleanup tick failed'))
   }, CLEANUP_INTERVAL_MS)
   intervalHandle.unref()
   logger.info({ intervalMs: CLEANUP_INTERVAL_MS }, 'Order cleanup service started')

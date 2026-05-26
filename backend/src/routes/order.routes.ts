@@ -14,10 +14,8 @@ import { logger } from '../config/logger'
 import { env, isTest } from '../config/env'
 import { generateOrderNo } from '../lib/order-no'
 import { priceOrderRequest, deductStock } from '../services/order.service'
-import {
-  createPayPalOrder,
-  capturePayPalOrder,
-} from '../services/paypal.service'
+import { createPayPalOrder, capturePayPalOrder } from '../services/paypal.service'
+import { notifyOrderConfirmed } from '../services/mailer.service'
 
 export const orderRouter = Router()
 
@@ -220,7 +218,10 @@ orderRouter.post(
         req,
       })
 
-      // TODO: send order confirmation email (M4 follow-up)
+      // Fire-and-forget order confirmation email
+      notifyOrderConfirmed(order).catch((err: unknown) =>
+        logger.error({ err, orderNo: order.orderNo }, 'Order confirmation email failed'),
+      )
 
       res.json({ orderNo: order.orderNo, status: order.status })
     } catch (err) {

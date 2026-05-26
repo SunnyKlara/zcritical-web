@@ -39,7 +39,11 @@ webhookRouter.post('/paypal/webhook', async (req, res) => {
 
     const event = req.body as {
       event_type: string
-      resource: { id?: string; custom_id?: string; supplementary_data?: { related_ids?: { order_id?: string } } }
+      resource: {
+        id?: string
+        custom_id?: string
+        supplementary_data?: { related_ids?: { order_id?: string } }
+      }
     }
 
     logger.info({ eventType: event.event_type }, 'PayPal webhook received')

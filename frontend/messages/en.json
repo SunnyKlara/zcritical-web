@@ -18,11 +18,14 @@
     "homeSection": "Home"
   },
   "Hero": {
+    "badge": "Immersive Cycling Simulator",
+    "brandName": "CRITICAL",
     "title": "Redefining indoor cycling",
-    "subtitle": "0-340 km/h wind simulation, smart lighting, engine sound, fog effects — ride as if you were on the track",
+    "slogan": "Feel the Wind. Own the Ride.",
+    "subtitle": "Wind · Light · Sound · Fog — Four-dimensional immersion that turns indoor training into a track experience",
     "ctaPrimary": "Learn more",
-    "ctaSecondary": "Watch demo",
-    "scrollHint": "Scroll to explore"
+    "ctaSecondary": "Buy Now",
+    "scrollHint": "Scroll"
   },
   "Footer": {
     "brand": "Smart wind tunnel simulator. Immersive cycling experience.",

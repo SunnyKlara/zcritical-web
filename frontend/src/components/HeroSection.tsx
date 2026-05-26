@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 
 // Canvas particle system simulating wind flow
 function WindParticles() {
@@ -164,6 +165,7 @@ function WindParticles() {
 }
 
 export default function HeroSection() {
+  const t = useTranslations('Hero')
   const sectionRef = useRef<HTMLDivElement>(null)
   const [videoLoaded, setVideoLoaded] = useState(false)
   const [videoError, setVideoError] = useState(false)
@@ -247,7 +249,7 @@ export default function HeroSection() {
           className="mb-8"
         >
           <span className="inline-block px-4 py-1.5 rounded-full border border-[#00D4FF]/30 bg-[#00D4FF]/5 text-[#00D4FF] text-sm font-medium backdrop-blur-sm">
-            沉浸式骑行模拟系统
+            {t('badge')}
           </span>
         </motion.div>
 
@@ -277,7 +279,7 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.7 }}
           className="text-xl sm:text-2xl lg:text-3xl text-gray-200 mb-3 font-light tracking-wide"
         >
-          Feel the Wind. Own the Ride.
+          {t('slogan')}
         </motion.p>
 
         <motion.p
@@ -286,7 +288,7 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.9 }}
           className="text-base sm:text-lg text-gray-400 mb-12 max-w-2xl mx-auto"
         >
-          风 · 光 · 声 · 雾 — 四维感官沉浸，让室内训练如同置身赛道
+          {t('subtitle')}
         </motion.p>
 
         {/* CTA Buttons */}
@@ -300,14 +302,14 @@ export default function HeroSection() {
             href="#overview"
             className="group relative px-8 py-4 bg-[#00D4FF] text-[#0A0A0F] font-semibold rounded-xl transition-all overflow-hidden"
           >
-            <span className="relative z-10">了解更多</span>
+            <span className="relative z-10">{t('ctaPrimary')}</span>
             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
           </a>
           <a
             href="#specs"
             className="px-8 py-4 border border-white/20 text-white rounded-xl hover:border-[#00D4FF]/50 hover:text-[#00D4FF] hover:bg-[#00D4FF]/5 transition-all backdrop-blur-sm"
           >
-            立即购买
+            {t('ctaSecondary')}
           </a>
         </motion.div>
       </motion.div>
@@ -319,7 +321,7 @@ export default function HeroSection() {
         transition={{ delay: 2 }}
         className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10"
       >
-        <span className="text-xs text-gray-500 tracking-widest uppercase">Scroll</span>
+        <span className="text-xs text-gray-500 tracking-widest uppercase">{t('scrollHint')}</span>
         <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}

@@ -52,27 +52,29 @@ pnpm --filter frontend test:e2e
 
 ## 闭环里程碑
 
-| 里程碑 | 目标 | 状态 |
-|--------|------|------|
-| M1 品牌展示站 | 静态 SEO + i18n（zh/en） | ✅ 完成 |
-| M2 询盘转化 | Lead 表单 + 邮件通知 + Sentry | ✅ 完成 |
+| 里程碑         | 目标                                       | 状态    |
+| -------------- | ------------------------------------------ | ------- |
+| M1 品牌展示站  | 静态 SEO + i18n（zh/en）                   | ✅ 完成 |
+| M2 询盘转化    | Lead 表单 + 邮件通知 + Sentry              | ✅ 完成 |
 | M3 后台 + 客服 | JWT Admin / Lead 管理 / Socket.io 实时客服 | ✅ 完成 |
-| M4 交易闭环 | 商品 / 订单 / PayPal / 退款 / 物流 | ✅ 完成 |
-| M5 固件分发 | OTA + 灰度发布 + 版本管理 | ✅ 完成 |
-| M6 设备绑定 | 激活 / 心跳 / 用户-设备-订单关联 | ✅ 完成 |
+| M4 交易闭环    | 商品 / 订单 / PayPal / 退款 / 物流 / 邮件  | ✅ 完成 |
+| M5 固件分发    | OTA + 灰度发布 + 版本管理                  | ✅ 完成 |
+| M6 设备绑定    | 激活 / 心跳 / 用户-设备-订单关联           | ✅ 完成 |
 
-详见 [`docs/ROADMAP.md`](./docs/ROADMAP.md)。
+详见 [`docs/ROADMAP.md`](./docs/ROADMAP.md)。**v1.0 已达到全闭环**：访客 → 留资 → 下单 → 支付 → 发货 → 设备激活 → 固件升级 — 完整对外业务通路全部跑通。
+
+> 上线前剩余事项（资源 / 凭证 / 域名 / 性能基线）和未来增强的延期清单见 [`docs/DEFERRED.md`](./docs/DEFERRED.md)。
 
 ## 技术栈
 
-| 层 | 技术 | 部署 |
-|----|------|------|
-| Frontend | Next.js 14 App Router + Tailwind + Framer Motion + next-intl + next-themes | Vercel |
-| Backend | Express + Socket.io + MongoDB (Mongoose) + JWT + Zod + Pino + Sentry | Render |
-| Shared | TypeScript + Zod | workspace package |
-| Storage | Cloudflare R2（M5 起，固件二进制） | Cloudflare |
-| Payment | PayPal Orders API v2（M4 起） | PayPal |
-| Container | Docker 多阶段构建 + 非 root 用户 | — |
+| 层        | 技术                                                                       | 部署              |
+| --------- | -------------------------------------------------------------------------- | ----------------- |
+| Frontend  | Next.js 14 App Router + Tailwind + Framer Motion + next-intl + next-themes | Vercel            |
+| Backend   | Express + Socket.io + MongoDB (Mongoose) + JWT + Zod + Pino + Sentry       | Render            |
+| Shared    | TypeScript + Zod                                                           | workspace package |
+| Storage   | Cloudflare R2（M5 起，固件二进制）                                         | Cloudflare        |
+| Payment   | PayPal Orders API v2（M4 起）                                              | PayPal            |
+| Container | Docker 多阶段构建 + 非 root 用户                                           | —                 |
 
 ## 关键文档
 
@@ -82,6 +84,7 @@ pnpm --filter frontend test:e2e
 - [`docs/DEPLOY.md`](./docs/DEPLOY.md) — 部署手册
 - [`docs/API.md`](./docs/API.md) — API 参考（OpenAPI 3.1 spec at `/api/openapi.json`）
 - [`docs/HANDOVER.md`](./docs/HANDOVER.md) — 30 分钟交接文档
+- [`docs/DEFERRED.md`](./docs/DEFERRED.md) — 延期工作清单（Tier 1-4 分级）
 - [`SECURITY.md`](./SECURITY.md) — 安全策略与漏洞披露
 - [`CONTRIBUTING.md`](./CONTRIBUTING.md) — 贡献指南
 

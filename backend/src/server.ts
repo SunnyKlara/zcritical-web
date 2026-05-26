@@ -24,11 +24,7 @@ import { errorHandler, notFoundHandler } from './middleware/error.middleware'
 import { csrfCookieSetter, csrfProtection } from './middleware/csrf.middleware'
 import { requestId } from './middleware/request-id.middleware'
 import { registerSocketHandlers } from './socket'
-import {
-  initSentry,
-  sentryRequestHandler,
-  installSentryExpressErrorHandler,
-} from './lib/sentry'
+import { initSentry, sentryRequestHandler, installSentryExpressErrorHandler } from './lib/sentry'
 
 export function createServer(): {
   app: express.Express
@@ -108,10 +104,7 @@ export function createServer(): {
     express.json({
       limit: '100kb',
       verify: (req, _res, buf) => {
-        if (
-          (req as express.Request).originalUrl ===
-          '/api/payments/paypal/webhook'
-        ) {
+        if ((req as express.Request).originalUrl === '/api/payments/paypal/webhook') {
           ;(req as express.Request & { rawBody?: Buffer }).rawBody = buf
         }
       },

@@ -1,9 +1,9 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { motion } from "framer-motion";
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
 import {
   ArrowLeft,
   Package,
@@ -13,73 +13,67 @@ import {
   RotateCcw,
   Clock,
   Filter,
-} from "lucide-react";
-import { useAuth, authFetch } from "@/lib/auth-context";
-import { formatCents } from "@/lib/utils";
-import { Badge } from "@/components/ui/Badge";
+} from 'lucide-react'
+import { useAuth, authFetch } from '@/lib/auth-context'
+import { formatCents } from '@/lib/utils'
+import { Badge } from '@/components/ui/Badge'
 
-type OrderStatus =
-  | "pending_payment"
-  | "paid"
-  | "shipped"
-  | "delivered"
-  | "cancelled"
-  | "refunded";
+type OrderStatus = 'pending_payment' | 'paid' | 'shipped' | 'delivered' | 'cancelled' | 'refunded'
 
 interface OrderRow {
-  _id: string;
-  orderNo: string;
-  email: string;
-  status: OrderStatus;
-  total: number;
-  currency: string;
-  shippingAddress: { city: string; country: string };
-  createdAt: string;
+  _id: string
+  orderNo: string
+  email: string
+  status: OrderStatus
+  total: number
+  currency: string
+  shippingAddress: { city: string; country: string }
+  createdAt: string
 }
 
 const STATUS_CONFIG: Record<
   OrderStatus,
   {
-    label: string;
-    tone: "primary" | "success" | "warning" | "neutral" | "accent";
-    icon: React.ComponentType<{ className?: string }>;
+    label: string
+    tone: 'primary' | 'success' | 'warning' | 'neutral' | 'accent'
+    icon: React.ComponentType<{ className?: string }>
   }
 > = {
-  pending_payment: { label: "待付款", tone: "warning", icon: Clock },
-  paid: { label: "已付款", tone: "primary", icon: Package },
-  shipped: { label: "已发货", tone: "success", icon: Truck },
-  delivered: { label: "已送达", tone: "success", icon: CheckCircle2 },
-  cancelled: { label: "已取消", tone: "neutral", icon: XCircle },
-  refunded: { label: "已退款", tone: "accent", icon: RotateCcw },
-};
+  pending_payment: { label: '待付款', tone: 'warning', icon: Clock },
+  paid: { label: '已付款', tone: 'primary', icon: Package },
+  shipped: { label: '已发货', tone: 'success', icon: Truck },
+  delivered: { label: '已送达', tone: 'success', icon: CheckCircle2 },
+  cancelled: { label: '已取消', tone: 'neutral', icon: XCircle },
+  refunded: { label: '已退款', tone: 'accent', icon: RotateCcw },
+}
 
 export default function AdminOrdersPage() {
-  const router = useRouter();
-  const { user, accessToken, loading, refresh } = useAuth();
-  const [orders, setOrders] = useState<OrderRow[]>([]);
-  const [filter, setFilter] = useState<OrderStatus | "all">("all");
-  const [ordersLoading, setOrdersLoading] = useState(true);
+  const router = useRouter()
+  const { user, accessToken, loading, refresh } = useAuth()
+  const [orders, setOrders] = useState<OrderRow[]>([])
+  const [filter, setFilter] = useState<OrderStatus | 'all'>('all')
+  const [ordersLoading, setOrdersLoading] = useState(true)
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/admin/login");
-  }, [loading, user, router]);
+    if (!loading && !user) router.replace('/admin/login')
+  }, [loading, user, router])
 
   useEffect(() => {
-    if (!user) return;
-    setOrdersLoading(true);
-    const query = filter === "all" ? "" : `?status=${filter}`;
+    if (!user) return
+    setOrdersLoading(true)
+    const query = filter === 'all' ? '' : `?status=${filter}`
     authFetch<OrderRow[]>(`/api/admin/orders${query}`, {}, { accessToken, refresh })
       .then(setOrders)
       .catch(console.error)
-      .finally(() => setOrdersLoading(false));
-  }, [user, accessToken, refresh, filter]);
+      .finally(() => setOrdersLoading(false))
+  }, [user, accessToken, refresh, filter])
 
   if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
-    );
+    )
   }
 
   return (
@@ -104,7 +98,7 @@ export default function AdminOrdersPage() {
           className="flex items-center gap-2 overflow-x-auto mb-6"
         >
           <Filter className="w-4 h-4 text-gray-500 flex-shrink-0" />
-          <Chip active={filter === "all"} onClick={() => setFilter("all")}>
+          <Chip active={filter === 'all'} onClick={() => setFilter('all')}>
             全部
           </Chip>
           {(Object.keys(STATUS_CONFIG) as OrderStatus[]).map((s) => (
@@ -133,12 +127,12 @@ export default function AdminOrdersPage() {
             </div>
             <ul className="divide-y divide-white/5">
               {orders.map((o) => {
-                const config = STATUS_CONFIG[o.status];
-                const Icon = config.icon;
-                const date = new Date(o.createdAt).toLocaleDateString("zh-CN", {
-                  month: "short",
-                  day: "numeric",
-                });
+                const config = STATUS_CONFIG[o.status]
+                const Icon = config.icon
+                const date = new Date(o.createdAt).toLocaleDateString('zh-CN', {
+                  month: 'short',
+                  day: 'numeric',
+                })
                 return (
                   <li key={o._id}>
                     <Link
@@ -162,14 +156,14 @@ export default function AdminOrdersPage() {
                       </span>
                     </Link>
                   </li>
-                );
+                )
               })}
             </ul>
           </div>
         )}
       </div>
     </main>
-  );
+  )
 }
 
 function Chip({
@@ -177,9 +171,9 @@ function Chip({
   onClick,
   children,
 }: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
+  active: boolean
+  onClick: () => void
+  children: React.ReactNode
 }) {
   return (
     <button
@@ -187,11 +181,11 @@ function Chip({
       onClick={onClick}
       className={`px-3 py-1 rounded-full text-xs whitespace-nowrap transition-colors ${
         active
-          ? "bg-primary/15 text-primary border border-primary/30"
-          : "border border-white/10 text-gray-400 hover:border-white/20 hover:text-white"
+          ? 'bg-primary/15 text-primary border border-primary/30'
+          : 'border border-white/10 text-gray-400 hover:border-white/20 hover:text-white'
       }`}
     >
       {children}
     </button>
-  );
+  )
 }

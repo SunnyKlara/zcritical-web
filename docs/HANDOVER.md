@@ -2,9 +2,20 @@
 
 > 30 分钟内理解项目状态、跑起来本地环境、知道下一步做什么。
 
-## 当前状态（v0.5 — 2026-05-26）
+## 当前状态（v1.0 — 2026-05-26）
 
-### M1-M3 全部完成 ✅
+### 全部 6 个里程碑已完成 ✅
+
+> **更新于 v1.0（v0.5 → v1.0）**
+>
+> - **Phase 1**：邮件三件套上线 — 订单确认 / 发货通知 / 退款通知（zh/en 双语 HTML 模板，已 wire 到 capture/ship/refund 三个流程）
+> - **Phase 2**：数据库 seed 脚本 (`pnpm seed`) — 1 个商品（2 个变体）+ v1.0.0 固件，幂等可重跑
+> - **Phase 3**：Checkout 走真实 `/api/products` 接口 — 不再硬编码 $299，支持变体切换、动态价格、加载/错误态
+> - **Phase 4**：HeroSection 完成深度 i18n（badge/slogan/subtitle/scroll/CTA 全翻译）
+> - **Phase 5**：Light 主题 CSS 基础设施完成（`darkMode: 'class'` + `:root, .dark` / `.light` CSS 变量）
+> - 仍未完成的工作详见新增的 [`DEFERRED.md`](./DEFERRED.md)
+
+### M1-M6 全部完成 ✅
 
 #### 前端（frontend/）
 
@@ -246,12 +257,19 @@ git commit -m "feat: test"  # 通过
 
 ## 仍可优化（非阻塞）
 
-- [ ] 深层营销组件（Hero / Features / 8 Features / SpecsSection / UseCasesSection）的中文文案搬到 messages.json
-- [ ] PWA 真实图标 PNG（现用 SVG 占位）
-- [ ] OG 动态图片（@vercel/og — 之前因 Node 24 兼容问题暂搁）
-- [ ] 接入真实 SMTP / Sentry DSN
-- [ ] M4 商品 + PayPal 支付
-- [ ] M5 固件 OTA + Cloudflare R2
-- [ ] M6 设备激活 API
-- [ ] AI 客服（OpenAI / Claude）
-- [ ] light 主题色板（当前主要是 dark，light 模式色彩需设计）
+> 完整清单 + 工作量估计 + 推荐路径见 [`docs/DEFERRED.md`](./DEFERRED.md)。
+>
+> 简要分层：
+>
+> - **Tier 1 上线前必做** — 静态资源（OG / 视频 / 产品图 / PNG icons）、第三方账号（SMTP / Sentry / PayPal Live / R2）、域名 + DNS、Lighthouse baseline
+> - **Tier 2 上线后第一周** — 5 个营销组件深度 i18n、light 主题视觉适配（语义 token 替换）、Hero 实拍视频、Checkout 性能优化
+> - **Tier 3 业务规模驱动** — 数据分析 / 站内搜索 / MDX 博客 / 多币种 / 库存预警 / 优惠码 / 物流 API / AI 客服 / Redis+BullMQ
+> - **Tier 4 长期改进** — Next 15 升级、OpenAPI 自动生成、Storybook、E2E 扩大、覆盖率门槛、微服务拆分、A/B 测试
+
+### 已完成的 v1.0 关键能力
+
+- ✅ 邮件三件套（订单确认 / 发货 / 退款 — zh/en 双语 HTML）
+- ✅ Checkout 走真实商品 API（变体切换 / 动态价格 / 加载/错误态）
+- ✅ Seed 脚本（`pnpm --filter backend seed` — 商品 + 固件 + 默认管理员）
+- ✅ Hero 深度 i18n（5 个 key 全部翻译完成）
+- ✅ Light 主题 CSS 基础设施（变量 + tailwind 配置就绪，待组件层语义 token 改造）

@@ -1,147 +1,147 @@
-"use client";
+'use client'
 
-import { useEffect, useState, type FormEvent } from "react";
-import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, Truck, RotateCcw, AlertCircle, CheckCircle2 } from "lucide-react";
-import { useAuth, authFetch } from "@/lib/auth-context";
-import { formatCents } from "@/lib/utils";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
+import { useEffect, useState, type FormEvent } from 'react'
+import { useRouter, useParams } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft, Truck, RotateCcw, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { useAuth, authFetch } from '@/lib/auth-context'
+import { formatCents } from '@/lib/utils'
+import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
 
 interface OrderDetail {
-  _id: string;
-  orderNo: string;
-  email: string;
-  status: string;
-  items: { sku: string; name: string; price: number; quantity: number; image: string }[];
-  subtotal: number;
-  shipping: number;
-  total: number;
-  currency: string;
+  _id: string
+  orderNo: string
+  email: string
+  status: string
+  items: { sku: string; name: string; price: number; quantity: number; image: string }[]
+  subtotal: number
+  shipping: number
+  total: number
+  currency: string
   shippingAddress: {
-    fullName: string;
-    line1: string;
-    line2?: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-    phone?: string;
-  };
+    fullName: string
+    line1: string
+    line2?: string
+    city: string
+    state: string
+    postalCode: string
+    country: string
+    phone?: string
+  }
   payment: {
-    method: string;
-    paypalOrderId?: string;
-    paypalCaptureId?: string;
-    paidAt?: string;
-  };
-  fulfillment?: { carrier?: string; trackingNo?: string; trackingUrl?: string; shippedAt?: string };
-  notes?: string;
-  createdAt: string;
+    method: string
+    paypalOrderId?: string
+    paypalCaptureId?: string
+    paidAt?: string
+  }
+  fulfillment?: { carrier?: string; trackingNo?: string; trackingUrl?: string; shippedAt?: string }
+  notes?: string
+  createdAt: string
 }
 
 interface PaymentEvent {
-  _id: string;
-  event: string;
-  providerId: string;
-  amount: number;
-  createdAt: string;
+  _id: string
+  event: string
+  providerId: string
+  amount: number
+  createdAt: string
 }
 
 export default function OrderDetailPage() {
-  const router = useRouter();
-  const params = useParams<{ id: string }>();
-  const { user, accessToken, loading: authLoading, refresh } = useAuth();
-  const [order, setOrder] = useState<OrderDetail | null>(null);
-  const [events, setEvents] = useState<PaymentEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showShipForm, setShowShipForm] = useState(false);
-  const [showRefundForm, setShowRefundForm] = useState(false);
-  const [actionMsg, setActionMsg] = useState("");
+  const router = useRouter()
+  const params = useParams<{ id: string }>()
+  const { user, accessToken, loading: authLoading, refresh } = useAuth()
+  const [order, setOrder] = useState<OrderDetail | null>(null)
+  const [events, setEvents] = useState<PaymentEvent[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showShipForm, setShowShipForm] = useState(false)
+  const [showRefundForm, setShowRefundForm] = useState(false)
+  const [actionMsg, setActionMsg] = useState('')
 
   useEffect(() => {
-    if (!authLoading && !user) router.replace("/admin/login");
-  }, [authLoading, user, router]);
+    if (!authLoading && !user) router.replace('/admin/login')
+  }, [authLoading, user, router])
 
   async function load() {
-    if (!user || !params.id) return;
-    setLoading(true);
+    if (!user || !params.id) return
+    setLoading(true)
     try {
       const data = await authFetch<{ order: OrderDetail; events: PaymentEvent[] }>(
         `/api/admin/orders/${params.id}`,
         {},
         { accessToken, refresh },
-      );
-      setOrder(data.order);
-      setEvents(data.events);
+      )
+      setOrder(data.order)
+      setEvents(data.events)
     } catch (err) {
-      console.error(err);
+      console.error(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   useEffect(() => {
-    void load();
+    void load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.id, user]);
+  }, [params.id, user])
 
   async function handleShip(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!order) return;
-    const fd = new FormData(e.currentTarget);
+    e.preventDefault()
+    if (!order) return
+    const fd = new FormData(e.currentTarget)
     try {
       const updated = await authFetch<OrderDetail>(
         `/api/admin/orders/${order._id}/ship`,
         {
-          method: "POST",
+          method: 'POST',
           body: JSON.stringify({
-            carrier: String(fd.get("carrier") || ""),
-            trackingNo: String(fd.get("trackingNo") || ""),
-            trackingUrl: String(fd.get("trackingUrl") || "") || undefined,
+            carrier: String(fd.get('carrier') || ''),
+            trackingNo: String(fd.get('trackingNo') || ''),
+            trackingUrl: String(fd.get('trackingUrl') || '') || undefined,
           }),
         },
         { accessToken, refresh },
-      );
-      setOrder(updated);
-      setShowShipForm(false);
-      setActionMsg("Shipped successfully");
-      setTimeout(() => setActionMsg(""), 3000);
-      void load();
+      )
+      setOrder(updated)
+      setShowShipForm(false)
+      setActionMsg('Shipped successfully')
+      setTimeout(() => setActionMsg(''), 3000)
+      void load()
     } catch (err) {
-      console.error(err);
-      setActionMsg("Failed to ship");
+      console.error(err)
+      setActionMsg('Failed to ship')
     }
   }
 
   async function handleRefund(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!order) return;
-    const fd = new FormData(e.currentTarget);
-    const amountDollars = parseFloat(String(fd.get("amount") || "0"));
-    if (!Number.isFinite(amountDollars) || amountDollars <= 0) return;
-    if (!confirm(`确认退款 $${amountDollars.toFixed(2)}? 此操作不可撤销。`)) return;
+    e.preventDefault()
+    if (!order) return
+    const fd = new FormData(e.currentTarget)
+    const amountDollars = parseFloat(String(fd.get('amount') || '0'))
+    if (!Number.isFinite(amountDollars) || amountDollars <= 0) return
+    if (!confirm(`确认退款 $${amountDollars.toFixed(2)}? 此操作不可撤销。`)) return
     try {
       const updated = await authFetch<OrderDetail>(
         `/api/admin/orders/${order._id}/refund`,
         {
-          method: "POST",
+          method: 'POST',
           body: JSON.stringify({
             amount: Math.round(amountDollars * 100),
-            reason: String(fd.get("reason") || "") || undefined,
+            reason: String(fd.get('reason') || '') || undefined,
           }),
         },
         { accessToken, refresh },
-      );
-      setOrder(updated);
-      setShowRefundForm(false);
-      setActionMsg("Refunded successfully");
-      setTimeout(() => setActionMsg(""), 3000);
-      void load();
+      )
+      setOrder(updated)
+      setShowRefundForm(false)
+      setActionMsg('Refunded successfully')
+      setTimeout(() => setActionMsg(''), 3000)
+      void load()
     } catch (err) {
-      console.error(err);
-      setActionMsg("Refund failed");
+      console.error(err)
+      setActionMsg('Refund failed')
     }
   }
 
@@ -150,7 +150,7 @@ export default function OrderDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
-    );
+    )
   }
 
   if (!order) {
@@ -161,7 +161,7 @@ export default function OrderDetailPage() {
           返回列表
         </Link>
       </main>
-    );
+    )
   }
 
   return (
@@ -178,7 +178,7 @@ export default function OrderDetailPage() {
             <h1 className="text-base font-semibold truncate">订单详情</h1>
             <p className="text-xs text-primary font-mono">{order.orderNo}</p>
           </div>
-          <Badge tone={order.status === "paid" ? "primary" : "neutral"}>{order.status}</Badge>
+          <Badge tone={order.status === 'paid' ? 'primary' : 'neutral'}>{order.status}</Badge>
         </div>
       </header>
 
@@ -230,13 +230,23 @@ export default function OrderDetailPage() {
                 {order.shippingAddress.fullName}
                 <br />
                 {order.shippingAddress.line1}
-                {order.shippingAddress.line2 && <><br />{order.shippingAddress.line2}</>}
+                {order.shippingAddress.line2 && (
+                  <>
+                    <br />
+                    {order.shippingAddress.line2}
+                  </>
+                )}
                 <br />
-                {order.shippingAddress.city}, {order.shippingAddress.state}{" "}
+                {order.shippingAddress.city}, {order.shippingAddress.state}{' '}
                 {order.shippingAddress.postalCode}
                 <br />
                 {order.shippingAddress.country}
-                {order.shippingAddress.phone && <><br />{order.shippingAddress.phone}</>}
+                {order.shippingAddress.phone && (
+                  <>
+                    <br />
+                    {order.shippingAddress.phone}
+                  </>
+                )}
               </p>
             </section>
 
@@ -265,7 +275,7 @@ export default function OrderDetailPage() {
             <section className="glass-card p-5">
               <h2 className="text-sm font-semibold mb-3">操作</h2>
 
-              {order.status === "paid" && (
+              {order.status === 'paid' && (
                 <Button onClick={() => setShowShipForm(!showShipForm)} className="w-full mb-2">
                   <Truck className="w-4 h-4" />
                   标记发货
@@ -283,7 +293,7 @@ export default function OrderDetailPage() {
                 </form>
               )}
 
-              {(order.status === "paid" || order.status === "shipped") &&
+              {(order.status === 'paid' || order.status === 'shipped') &&
                 order.payment.paypalCaptureId && (
                   <Button
                     variant="danger"
@@ -296,7 +306,10 @@ export default function OrderDetailPage() {
                 )}
 
               {showRefundForm && (
-                <form onSubmit={handleRefund} className="space-y-2 mt-3 pt-3 border-t border-white/5">
+                <form
+                  onSubmit={handleRefund}
+                  className="space-y-2 mt-3 pt-3 border-t border-white/5"
+                >
                   <Input
                     name="amount"
                     type="number"
@@ -347,11 +360,13 @@ export default function OrderDetailPage() {
                   {order.email}
                 </a>
               </p>
-              <p className="text-gray-500 mt-1">下单 {new Date(order.createdAt).toLocaleString()}</p>
+              <p className="text-gray-500 mt-1">
+                下单 {new Date(order.createdAt).toLocaleString()}
+              </p>
             </section>
           </div>
         </div>
       </div>
     </main>
-  );
+  )
 }

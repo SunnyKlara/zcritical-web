@@ -24,9 +24,7 @@ export interface PricedOrder {
  * Throws AppError on any validation failure (out of stock, invalid SKU,
  * archived product, etc.) so the route can return a clean 4xx response.
  */
-export async function priceOrderRequest(
-  req: CreateOrderRequest,
-): Promise<PricedOrder> {
+export async function priceOrderRequest(req: CreateOrderRequest): Promise<PricedOrder> {
   // Build a unique set of SKUs to fetch all relevant products in one query
   const skus = req.items.map((i) => i.sku)
   const products = await ProductModel.find({

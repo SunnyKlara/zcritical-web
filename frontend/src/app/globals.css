@@ -9,24 +9,33 @@
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 /* ─── CSS Custom Properties (Design Tokens) ─── */
-:root {
+/*
+ * Default = dark theme (`.dark` class on <html>).
+ * `next-themes` toggles `.dark` / `.light` on <html> based on user preference
+ * or system pref when set to "system".
+ *
+ * Components reference Tailwind tokens (which use these vars) so they switch
+ * automatically with no JS-conditional className.
+ */
+:root,
+.dark {
   /* Background */
-  --background: #0A0A0A;
-  --background-end: #1A1A2E;
-  --foreground: #FFFFFF;
+  --background: #0a0a0a;
+  --background-end: #1a1a2e;
+  --foreground: #ffffff;
 
-  /* Brand Colors */
-  --color-primary: #00D4FF;
-  --color-primary-dark: #00A3CC;
-  --color-primary-light: #66E5FF;
-  --color-accent: #FF3B30;
-  --color-accent-dark: #CC2F26;
+  /* Brand Colors (constant across themes) */
+  --color-primary: #00d4ff;
+  --color-primary-dark: #00a3cc;
+  --color-primary-light: #66e5ff;
+  --color-accent: #ff3b30;
+  --color-accent-dark: #cc2f26;
 
   /* Text Hierarchy */
-  --text-primary: #FFFFFF;
-  --text-secondary: #A0A0B0;
-  --text-tertiary: #6B6B80;
-  --text-muted: #4A4A5A;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0b0;
+  --text-tertiary: #6b6b80;
+  --text-muted: #4a4a5a;
 
   /* Surface */
   --surface-card: rgba(255, 255, 255, 0.05);
@@ -49,6 +58,27 @@
   --radius-card: 16px;
   --radius-card-lg: 24px;
   --radius-button: 12px;
+}
+
+/* ─── Light Theme Overrides ─────────────────────────────────────────────
+ * Mirror the dark palette structure with light values. Brand primary stays
+ * the same (it's the brand). Backgrounds and text invert; surfaces become
+ * subtle off-white instead of glassy white-on-dark.
+ */
+.light {
+  --background: #ffffff;
+  --background-end: #f5f7fb;
+  --foreground: #0a0a0a;
+
+  --text-primary: #0a0a0a;
+  --text-secondary: #4a4a5a;
+  --text-tertiary: #6b6b80;
+  --text-muted: #a0a0b0;
+
+  --surface-card: rgba(0, 0, 0, 0.03);
+  --surface-card-hover: rgba(0, 0, 0, 0.05);
+  --surface-border: rgba(0, 0, 0, 0.08);
+  --surface-border-hover: rgba(0, 0, 0, 0.12);
 }
 
 @media (max-width: 768px) {

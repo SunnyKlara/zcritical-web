@@ -1,131 +1,119 @@
-"use client";
+'use client'
 
-import { useEffect, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  Plus,
-  Cpu,
-  Upload,
-  CheckCircle2,
-  Clock,
-  Archive,
-} from "lucide-react";
-import { useAuth, authFetch } from "@/lib/auth-context";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Input, Textarea } from "@/components/ui/Input";
+import { useEffect, useState, type FormEvent } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { ArrowLeft, Plus, Cpu, Upload, CheckCircle2, Clock, Archive } from 'lucide-react'
+import { useAuth, authFetch } from '@/lib/auth-context'
+import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
+import { Input, Textarea } from '@/components/ui/Input'
 
 interface Firmware {
-  _id: string;
-  version: string;
-  channel: "stable" | "beta" | "dev";
-  releaseNotes: { zh: string; en: string };
-  binaryUrl: string;
-  binarySize: number;
-  binaryHash: string;
-  hardwareVersions: string[];
-  rolloutPercent: number;
-  status: "draft" | "published" | "archived";
-  publishedAt?: string;
-  createdAt: string;
+  _id: string
+  version: string
+  channel: 'stable' | 'beta' | 'dev'
+  releaseNotes: { zh: string; en: string }
+  binaryUrl: string
+  binarySize: number
+  binaryHash: string
+  hardwareVersions: string[]
+  rolloutPercent: number
+  status: 'draft' | 'published' | 'archived'
+  publishedAt?: string
+  createdAt: string
 }
 
-const STATUS_TONE: Record<Firmware["status"], "primary" | "success" | "neutral"> = {
-  draft: "neutral",
-  published: "success",
-  archived: "neutral",
-};
+const STATUS_TONE: Record<Firmware['status'], 'primary' | 'success' | 'neutral'> = {
+  draft: 'neutral',
+  published: 'success',
+  archived: 'neutral',
+}
 
-const STATUS_ICON: Record<Firmware["status"], typeof Clock> = {
+const STATUS_ICON: Record<Firmware['status'], typeof Clock> = {
   draft: Clock,
   published: CheckCircle2,
   archived: Archive,
-};
+}
 
 export default function AdminFirmwarePage() {
-  const router = useRouter();
-  const { user, accessToken, loading, refresh } = useAuth();
-  const [items, setItems] = useState<Firmware[]>([]);
-  const [itemsLoading, setItemsLoading] = useState(true);
-  const [showCreate, setShowCreate] = useState(false);
-  const [creating, setCreating] = useState(false);
+  const router = useRouter()
+  const { user, accessToken, loading, refresh } = useAuth()
+  const [items, setItems] = useState<Firmware[]>([])
+  const [itemsLoading, setItemsLoading] = useState(true)
+  const [showCreate, setShowCreate] = useState(false)
+  const [creating, setCreating] = useState(false)
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/admin/login");
-  }, [loading, user, router]);
+    if (!loading && !user) router.replace('/admin/login')
+  }, [loading, user, router])
 
   async function load() {
-    if (!user) return;
-    setItemsLoading(true);
+    if (!user) return
+    setItemsLoading(true)
     try {
-      const data = await authFetch<Firmware[]>(
-        "/api/admin/firmware",
-        {},
-        { accessToken, refresh },
-      );
-      setItems(data);
+      const data = await authFetch<Firmware[]>('/api/admin/firmware', {}, { accessToken, refresh })
+      setItems(data)
     } finally {
-      setItemsLoading(false);
+      setItemsLoading(false)
     }
   }
 
   useEffect(() => {
-    void load();
+    void load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user])
 
   async function handleCreate(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setCreating(true);
-    const fd = new FormData(e.currentTarget);
+    e.preventDefault()
+    setCreating(true)
+    const fd = new FormData(e.currentTarget)
     try {
       await authFetch(
-        "/api/admin/firmware",
+        '/api/admin/firmware',
         {
-          method: "POST",
+          method: 'POST',
           body: JSON.stringify({
-            version: String(fd.get("version") || ""),
-            channel: String(fd.get("channel") || "stable"),
+            version: String(fd.get('version') || ''),
+            channel: String(fd.get('channel') || 'stable'),
             releaseNotes: {
-              zh: String(fd.get("notesZh") || ""),
-              en: String(fd.get("notesEn") || ""),
+              zh: String(fd.get('notesZh') || ''),
+              en: String(fd.get('notesEn') || ''),
             },
-            binaryUrl: String(fd.get("binaryUrl") || ""),
-            binarySize: Number(fd.get("binarySize") || 0),
-            binaryHash: String(fd.get("binaryHash") || ""),
-            hardwareVersions: String(fd.get("hardwareVersions") || "v1.0")
-              .split(",")
+            binaryUrl: String(fd.get('binaryUrl') || ''),
+            binarySize: Number(fd.get('binarySize') || 0),
+            binaryHash: String(fd.get('binaryHash') || ''),
+            hardwareVersions: String(fd.get('hardwareVersions') || 'v1.0')
+              .split(',')
               .map((s) => s.trim()),
-            rolloutPercent: Number(fd.get("rolloutPercent") || 100),
-            status: "draft",
+            rolloutPercent: Number(fd.get('rolloutPercent') || 100),
+            status: 'draft',
           }),
         },
         { accessToken, refresh },
-      );
-      setShowCreate(false);
-      void load();
+      )
+      setShowCreate(false)
+      void load()
     } catch (err) {
-      console.error(err);
-      alert("Failed to create firmware");
+      console.error(err)
+      alert('Failed to create firmware')
     } finally {
-      setCreating(false);
+      setCreating(false)
     }
   }
 
   async function publish(id: string) {
-    if (!confirm("Publish this firmware? Devices in the rollout will start receiving it.")) return;
+    if (!confirm('Publish this firmware? Devices in the rollout will start receiving it.')) return
     try {
       await authFetch(
         `/api/admin/firmware/${id}/publish`,
-        { method: "POST" },
+        { method: 'POST' },
         { accessToken, refresh },
-      );
-      void load();
+      )
+      void load()
     } catch (err) {
-      console.error(err);
+      console.error(err)
     }
   }
 
@@ -134,7 +122,7 @@ export default function AdminFirmwarePage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
-    );
+    )
   }
 
   return (
@@ -179,7 +167,12 @@ export default function AdminFirmwarePage() {
             <Input name="binaryUrl" type="url" placeholder="二进制下载 URL (R2/CDN)" required />
             <div className="grid sm:grid-cols-2 gap-3">
               <Input name="binarySize" type="number" placeholder="字节数" required />
-              <Input name="binaryHash" placeholder="SHA256 (64 hex chars)" required pattern="[a-fA-F0-9]{64}" />
+              <Input
+                name="binaryHash"
+                placeholder="SHA256 (64 hex chars)"
+                required
+                pattern="[a-fA-F0-9]{64}"
+              />
             </div>
             <Input
               name="hardwareVersions"
@@ -194,11 +187,7 @@ export default function AdminFirmwarePage() {
               <Button type="submit" isLoading={creating} disabled={creating}>
                 创建草稿
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setShowCreate(false)}
-              >
+              <Button type="button" variant="ghost" onClick={() => setShowCreate(false)}>
                 取消
               </Button>
             </div>
@@ -215,7 +204,7 @@ export default function AdminFirmwarePage() {
         ) : (
           <ul className="space-y-3">
             {items.map((fw) => {
-              const Icon = STATUS_ICON[fw.status];
+              const Icon = STATUS_ICON[fw.status]
               return (
                 <li key={fw._id} className="glass-card p-4 flex items-center gap-4">
                   <div className="flex-1 min-w-0">
@@ -234,14 +223,12 @@ export default function AdminFirmwarePage() {
                     </div>
                     <p className="text-xs text-gray-500 line-clamp-1">{fw.releaseNotes.zh}</p>
                     <p className="text-[10px] text-gray-600 mt-0.5">
-                      {fw.hardwareVersions.join(", ")} ·{" "}
-                      {fw.publishedAt
-                        ? new Date(fw.publishedAt).toLocaleDateString()
-                        : "draft"}
+                      {fw.hardwareVersions.join(', ')} ·{' '}
+                      {fw.publishedAt ? new Date(fw.publishedAt).toLocaleDateString() : 'draft'}
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    {fw.status === "draft" && (
+                    {fw.status === 'draft' && (
                       <Button size="sm" onClick={() => publish(fw._id)}>
                         <Upload className="w-3.5 h-3.5" />
                         发布
@@ -249,11 +236,11 @@ export default function AdminFirmwarePage() {
                     )}
                   </div>
                 </li>
-              );
+              )
             })}
           </ul>
         )}
       </div>
     </main>
-  );
+  )
 }

@@ -1,10 +1,7 @@
 import { Router } from 'express'
 import rateLimit from 'express-rate-limit'
 import { z } from 'zod'
-import {
-  ActivateDeviceRequestSchema,
-  DeviceHeartbeatRequestSchema,
-} from '@critical/shared'
+import { ActivateDeviceRequestSchema, DeviceHeartbeatRequestSchema } from '@critical/shared'
 import { DeviceModel } from '../models/Device.model'
 import { OrderModel } from '../models/Order.model'
 import { validateBody } from '../middleware/validate.middleware'
@@ -172,10 +169,7 @@ adminDeviceRouter.use(requireAdmin)
 adminDeviceRouter.get('/', async (req, res, next) => {
   try {
     const limit = Math.min(500, Number(req.query.limit) || 100)
-    const items = await DeviceModel.find()
-      .sort({ lastSeenAt: -1 })
-      .limit(limit)
-      .lean()
+    const items = await DeviceModel.find().sort({ lastSeenAt: -1 }).limit(limit).lean()
     res.json(items)
   } catch (err) {
     next(err)

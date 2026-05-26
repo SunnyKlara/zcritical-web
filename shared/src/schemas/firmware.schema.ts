@@ -44,9 +44,7 @@ export const FirmwareCheckResponseSchema = z.object({
   downloadUrl: z.string().url().optional(),
   hash: z.string().optional(),
   size: z.number().int().optional(),
-  releaseNotes: z
-    .object({ zh: z.string(), en: z.string() })
-    .optional(),
+  releaseNotes: z.object({ zh: z.string(), en: z.string() }).optional(),
 })
 export type FirmwareCheckResponse = z.infer<typeof FirmwareCheckResponseSchema>
 

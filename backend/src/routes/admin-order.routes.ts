@@ -14,6 +14,7 @@ import { audit } from '../services/audit.service'
 import { logger } from '../config/logger'
 import { refundPayPalCapture } from '../services/paypal.service'
 import { restoreStock } from '../services/order.service'
+import { notifyOrderShipped, notifyOrderRefunded } from '../services/mailer.service'
 
 export const adminOrderRouter = Router()
 
@@ -96,7 +97,10 @@ adminOrderRouter.post(
         req,
       })
 
-      // TODO: send shipping notification email
+      notifyOrderShipped(order).catch((err: unknown) =>
+        logger.error({ err, orderNo: order.orderNo }, 'Shipping email failed'),
+      )
+
       logger.info({ orderNo: order.orderNo }, 'Order marked as shipped')
 
       res.json(order)
@@ -173,7 +177,9 @@ adminOrderRouter.post(
         req,
       })
 
-      // TODO: send refund notification email
+      notifyOrderRefunded(order, req.body.amount).catch((err: unknown) =>
+        logger.error({ err, orderNo: order.orderNo }, 'Refund email failed'),
+      )
 
       res.json(order)
     } catch (err) {

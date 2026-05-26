@@ -18,11 +18,14 @@
     "homeSection": "首页"
   },
   "Hero": {
+    "badge": "沉浸式骑行模拟系统",
+    "brandName": "CRITICAL",
     "title": "重新定义室内骑行",
-    "subtitle": "0-340 km/h 风速模拟、智能灯效、引擎音效、雾化氛围 — 让每一次踩踏都如同身临赛道",
+    "slogan": "Feel the Wind. Own the Ride.",
+    "subtitle": "风 · 光 · 声 · 雾 — 四维感官沉浸，让室内训练如同置身赛道",
     "ctaPrimary": "了解更多",
-    "ctaSecondary": "观看演示",
-    "scrollHint": "向下探索"
+    "ctaSecondary": "立即购买",
+    "scrollHint": "Scroll"
   },
   "Footer": {
     "brand": "智能风洞模拟器，沉浸式骑行体验",

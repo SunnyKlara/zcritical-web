@@ -1,23 +1,23 @@
-import { setRequestLocale } from "next-intl/server";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import CheckoutClient from "@/components/checkout/CheckoutClient";
+import { setRequestLocale } from 'next-intl/server'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
+import CheckoutClient from '@/components/checkout/CheckoutClient'
 
 export const metadata = {
-  title: "Checkout",
+  title: 'Checkout',
   robots: { index: false, follow: false },
-};
+}
 
 interface CheckoutPageProps {
-  params: { locale: string };
-  searchParams: { sku?: string; qty?: string };
+  params: { locale: string }
+  searchParams: { sku?: string; qty?: string }
 }
 
 export default function CheckoutPage({ params, searchParams }: CheckoutPageProps) {
-  setRequestLocale(params.locale);
+  setRequestLocale(params.locale)
 
-  const sku = searchParams.sku ?? "";
-  const quantity = Math.max(1, Math.min(10, parseInt(searchParams.qty ?? "1", 10) || 1));
+  const sku = searchParams.sku ?? ''
+  const quantity = Math.max(1, Math.min(10, parseInt(searchParams.qty ?? '1', 10) || 1))
 
   return (
     <main id="main-content" className="relative">
@@ -29,5 +29,5 @@ export default function CheckoutPage({ params, searchParams }: CheckoutPageProps
       </section>
       <Footer />
     </main>
-  );
+  )
 }
