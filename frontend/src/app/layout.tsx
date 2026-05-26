@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     siteName: 'Critical',
     images: [
       {
-        url: '/images/og-cover.jpg',
+        url: '/images/og-cover.svg',
         width: 1200,
         height: 630,
         alt: 'Critical Smart Wind Tunnel Simulator',

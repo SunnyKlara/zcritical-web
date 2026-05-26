@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "check-i18n": "node scripts/check-i18n.mjs",
     "test": "echo 'No unit tests yet — see e2e/'",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install --with-deps chromium"

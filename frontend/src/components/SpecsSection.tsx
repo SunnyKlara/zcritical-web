@@ -2,6 +2,7 @@
 
 import { motion, useInView } from 'framer-motion'
 import { useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Cpu,
   Monitor,
@@ -17,93 +18,101 @@ import {
 } from 'lucide-react'
 
 // ─── Spec Data ───────────────────────────────────────────────────────────────
+// Static data (icons, positions). Translatable strings are pulled at render
+// time via spec.categoryKey / valueKey.
 
-const specs = [
+type SpecRow = {
+  id: string
+  icon: typeof Cpu
+  position: { top: string; left: string }
+  categoryKey: string
+  valueKey: string
+}
+
+const specs: SpecRow[] = [
   {
     id: 'mcu',
-    category: '主控',
-    value: 'ESP32-S3 双核 240MHz, 16MB Flash, 8MB PSRAM',
     icon: Cpu,
-    // Position on exploded view (percentage from top-left)
     position: { top: '18%', left: '45%' },
+    categoryKey: 'mcuCategory',
+    valueKey: 'mcuValue',
   },
   {
     id: 'display',
-    category: '显示',
-    value: 'GC9A01 1.28" 圆形 IPS LCD, 240×240, SPI 40MHz',
     icon: Monitor,
     position: { top: '12%', left: '55%' },
+    categoryKey: 'displayCategory',
+    valueKey: 'displayValue',
   },
   {
     id: 'led',
-    category: '灯带',
-    value: 'WS2812B × 13颗（主灯带10 + 尾灯3），四区独立控制',
     icon: Lightbulb,
     position: { top: '35%', left: '25%' },
+    categoryKey: 'ledCategory',
+    valueKey: 'ledValue',
   },
   {
     id: 'fan',
-    category: '风扇',
-    value: 'PWM 无级调速, 1000Hz, 10-bit 分辨率',
     icon: Fan,
     position: { top: '50%', left: '50%' },
+    categoryKey: 'fanCategory',
+    valueKey: 'fanValue',
   },
   {
     id: 'audio',
-    category: '音频',
-    value: 'I2S DAC, 16-bit 44.1kHz, 5层实时混音',
     icon: Volume2,
     position: { top: '62%', left: '30%' },
+    categoryKey: 'audioCategory',
+    valueKey: 'audioValue',
   },
   {
     id: 'encoder',
-    category: '交互',
-    value: 'EC11 旋转编码器（PCNT四倍频），支持单击/双击/三击/长按',
     icon: RotateCcw,
     position: { top: '28%', left: '72%' },
+    categoryKey: 'encoderCategory',
+    valueKey: 'encoderValue',
   },
   {
     id: 'comm',
-    category: '通信',
-    value: 'BLE 5.0（控制通道）+ WiFi 2.4GHz（音频通道）',
     icon: Radio,
     position: { top: '42%', left: '70%' },
+    categoryKey: 'commCategory',
+    valueKey: 'commValue',
   },
   {
     id: 'fog',
-    category: '雾化器',
-    value: 'GPIO 开关控制',
     icon: CloudFog,
     position: { top: '72%', left: '55%' },
+    categoryKey: 'fogCategory',
+    valueKey: 'fogValue',
   },
   {
     id: 'storage',
-    category: '存储',
-    value: 'NVS + LittleFS, 支持3个自定义Logo槽位',
     icon: HardDrive,
     position: { top: '22%', left: '35%' },
+    categoryKey: 'storageCategory',
+    valueKey: 'storageValue',
   },
   {
     id: 'ota',
-    category: '升级',
-    value: 'OTA 空中升级, 双分区 + Rollback 保护',
     icon: Download,
     position: { top: '80%', left: '40%' },
+    categoryKey: 'otaCategory',
+    valueKey: 'otaValue',
   },
   {
     id: 'power',
-    category: '供电',
-    value: 'USB-C / DC 12V（待确认）',
     icon: Plug,
     position: { top: '85%', left: '60%' },
+    categoryKey: 'powerCategory',
+    valueKey: 'powerValue',
   },
 ]
-
-const packageList = ['Critical 主机 × 1', '电源适配器 × 1', '快速入门指南 × 1']
 
 // ─── Exploded View Component ─────────────────────────────────────────────────
 
 function ExplodedView({ hoveredId }: { hoveredId: string | null }) {
+  const t = useTranslations('Specs')
   return (
     <div className="relative w-full aspect-square max-w-[500px] mx-auto">
       {/* Central product silhouette */}
@@ -124,8 +133,8 @@ function ExplodedView({ hoveredId }: { hoveredId: string | null }) {
               />
             </svg>
           </div>
-          <p className="text-[11px] text-gray-500">产品爆炸图</p>
-          <p className="text-[10px] text-gray-600">替换为实际 3D 渲染</p>
+          <p className="text-[11px] text-gray-500">{t('explodedLabel')}</p>
+          <p className="text-[10px] text-gray-600">{t('explodedHint')}</p>
         </div>
       </div>
 
@@ -164,7 +173,7 @@ function ExplodedView({ hoveredId }: { hoveredId: string | null }) {
                 animate={{ opacity: 1, y: 0 }}
                 className="absolute top-full left-1/2 -translate-x-1/2 mt-1 whitespace-nowrap px-2 py-0.5 rounded bg-primary/90 text-[9px] text-dark-900 font-medium"
               >
-                {spec.category}
+                {t(spec.categoryKey)}
               </motion.div>
             )}
           </motion.div>
@@ -184,6 +193,9 @@ export default function SpecsSection() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
   const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const t = useTranslations('Specs')
+
+  const packageList = [t('packageItem1'), t('packageItem2'), t('packageItem3')]
 
   return (
     <section id="specs" className="relative py-24 lg:py-32" ref={ref}>
@@ -198,9 +210,10 @@ export default function SpecsSection() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
-            硬件<span className="text-gradient">规格</span>
+            {t('title')}
+            <span className="text-gradient">{t('titleHighlight')}</span>
           </h2>
-          <p className="text-gray-400 text-lg">专业级硬件配置，为极致体验而生</p>
+          <p className="text-gray-400 text-lg">{t('subtitle')}</p>
         </motion.div>
 
         {/* Two-column layout: Exploded view + Spec table */}
@@ -225,10 +238,10 @@ export default function SpecsSection() {
               {/* Table header */}
               <div className="grid grid-cols-[100px_1fr] sm:grid-cols-[120px_1fr] px-5 py-3 bg-dark-700/50 border-b border-white/5">
                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                  类别
+                  {t('tableCategory')}
                 </span>
                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                  参数
+                  {t('tableValue')}
                 </span>
               </div>
 
@@ -262,7 +275,7 @@ export default function SpecsSection() {
                           isActive ? 'text-primary' : 'text-gray-300'
                         }`}
                       >
-                        {spec.category}
+                        {t(spec.categoryKey)}
                       </span>
                     </div>
                     {/* Value */}
@@ -271,7 +284,7 @@ export default function SpecsSection() {
                         isActive ? 'text-white' : 'text-gray-400'
                       }`}
                     >
-                      {spec.value}
+                      {t(spec.valueKey)}
                     </span>
                   </motion.div>
                 )
@@ -287,7 +300,7 @@ export default function SpecsSection() {
             >
               <h3 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                包装清单
+                {t('packageTitle')}
               </h3>
               <div className="flex flex-wrap gap-x-6 gap-y-2">
                 {packageList.map((item) => (

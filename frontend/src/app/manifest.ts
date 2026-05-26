@@ -10,23 +10,19 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: '#0A0A0A',
     theme_color: '#00D4FF',
     orientation: 'portrait',
+    // Icons use SVG for infinite scaling without resolution loss.
+    // Replace with PNG (192/512) before launch — see public/icons/README.md.
     icons: [
       {
-        src: '/icons/icon-192.png',
-        sizes: '192x192',
-        type: 'image/png',
+        src: '/icons/icon.svg',
+        sizes: 'any',
+        type: 'image/svg+xml',
         purpose: 'any',
       },
       {
-        src: '/icons/icon-512.png',
-        sizes: '512x512',
-        type: 'image/png',
-        purpose: 'any',
-      },
-      {
-        src: '/icons/icon-maskable-512.png',
-        sizes: '512x512',
-        type: 'image/png',
+        src: '/icons/icon-maskable.svg',
+        sizes: 'any',
+        type: 'image/svg+xml',
         purpose: 'maskable',
       },
     ],

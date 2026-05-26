@@ -2,6 +2,7 @@
 
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Wind,
   Lightbulb,
@@ -159,7 +160,15 @@ function FogParticles() {
 
 /** 6. 圆屏轮播 */
 function RoundScreen() {
-  const pages = ['风速', '灯效', '音效', '雾化', '设置', '关于']
+  const t = useTranslations('Features')
+  const pages = [
+    t('screenPageWind'),
+    t('screenPageLed'),
+    t('screenPageAudio'),
+    t('screenPageFog'),
+    t('screenPageSettings'),
+    t('screenPageAbout'),
+  ]
   return (
     <div className="relative w-28 h-28 mx-auto rounded-full border-4 border-dark-600 overflow-hidden bg-dark-900">
       <div className="absolute inset-0 flex items-center justify-center animate-screen-carousel">
@@ -213,6 +222,7 @@ function AppMockup() {
 
 /** 8. OTA 升级 */
 function OtaProgress() {
+  const t = useTranslations('Features')
   return (
     <div className="space-y-3 w-full max-w-[180px] mx-auto">
       {/* Progress bar */}
@@ -225,69 +235,88 @@ function OtaProgress() {
         <span className="text-primary animate-version-bump font-mono">v2.2.0</span>
       </div>
       {/* Status */}
-      <div className="text-center text-xs text-gray-500 animate-pulse">升级中...</div>
+      <div className="text-center text-xs text-gray-500 animate-pulse">{t('otaUpgrading')}</div>
     </div>
   )
 }
 
 // ─── Feature data ────────────────────────────────────────────────────────────
+// Static structure (icon + animation render). Translatable strings are pulled
+// at render time via titleKey / subtitleKey.
 
-const features = [
+type FeatureItem = {
+  id: string
+  icon: typeof Wind
+  titleKey: string
+  subtitleKey: string
+  animation: React.ReactNode
+}
+
+const features: FeatureItem[] = [
   {
+    id: 'wind',
     icon: Wind,
-    title: '无级风速',
-    subtitle: '0-340km/h 模拟，PWM 无级调速',
+    titleKey: 'windTitle',
+    subtitleKey: 'windSubtitle',
     animation: <WindGauge />,
   },
   {
+    id: 'led',
     icon: Lightbulb,
-    title: '智能灯效',
-    subtitle: '14色预设 + 8种油门联动灯效',
+    titleKey: 'ledTitle',
+    subtitleKey: 'ledSubtitle',
     animation: <LedStrip />,
   },
   {
+    id: 'audio',
     icon: Volume2,
-    title: '引擎音效',
-    subtitle: '5层16-bit实时合成，变速率交叉淡入',
+    titleKey: 'audioTitle',
+    subtitleKey: 'audioSubtitle',
     animation: <AudioWaveform />,
   },
   {
+    id: 'cast',
     icon: Wifi,
-    title: '音频投射',
-    subtitle: '手机音乐 WiFi 实时推流到硬件扬声器',
+    titleKey: 'castTitle',
+    subtitleKey: 'castSubtitle',
     animation: <WifiCast />,
   },
   {
+    id: 'fog',
     icon: CloudFog,
-    title: '雾化氛围',
-    subtitle: '一键开启，营造沉浸式骑行环境',
+    titleKey: 'fogTitle',
+    subtitleKey: 'fogSubtitle',
     animation: <FogParticles />,
   },
   {
+    id: 'screen',
     icon: Circle,
-    title: '圆屏交互',
-    subtitle: '240×240 高清圆屏，6页滑动菜单',
+    titleKey: 'screenTitle',
+    subtitleKey: 'screenSubtitle',
     animation: <RoundScreen />,
   },
   {
+    id: 'app',
     icon: Smartphone,
-    title: 'APP 控制',
-    subtitle: '蓝牙连接，全功能实时控制',
+    titleKey: 'appTitle',
+    subtitleKey: 'appSubtitle',
     animation: <AppMockup />,
   },
   {
+    id: 'ota',
     icon: Download,
-    title: '空中升级',
-    subtitle: 'OTA 固件升级 + APP 自动更新',
+    titleKey: 'otaTitle',
+    subtitleKey: 'otaSubtitle',
     animation: <OtaProgress />,
   },
 ]
 
 // ─── Feature Card ────────────────────────────────────────────────────────────
 
-function FeatureCard({ feature, index }: { feature: (typeof features)[number]; index: number }) {
+function FeatureCard({ feature, index }: { feature: FeatureItem; index: number }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(cardRef, { margin: '-50px' })
+  const t = useTranslations('Features')
   const Icon = feature.icon
 
   return (
@@ -307,10 +336,10 @@ function FeatureCard({ feature, index }: { feature: (typeof features)[number]; i
       </div>
 
       {/* Title */}
-      <h3 className="text-lg font-bold mb-1">{feature.title}</h3>
+      <h3 className="text-lg font-bold mb-1">{t(feature.titleKey)}</h3>
 
       {/* Subtitle */}
-      <p className="text-sm text-gray-400 mb-4 leading-relaxed">{feature.subtitle}</p>
+      <p className="text-sm text-gray-400 mb-4 leading-relaxed">{t(feature.subtitleKey)}</p>
 
       {/* Animation area - visible on hover (desktop) or always visible (mobile)
           Animations are paused when card is not in viewport for performance */}
@@ -333,6 +362,7 @@ function FeatureCard({ feature, index }: { feature: (typeof features)[number]; i
 export default function FeaturesSection() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const t = useTranslations('Features')
 
   return (
     <section id="features" className="relative py-24 lg:py-32" ref={ref}>
@@ -345,17 +375,15 @@ export default function FeaturesSection() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
-            <span className="text-gradient">8 大核心功能</span>
+            <span className="text-gradient">{t('title')}</span>
           </h2>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-            全方位感官联动，打造极致沉浸骑行体验
-          </p>
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto">{t('subtitle')}</p>
         </motion.div>
 
         {/* 2×4 Grid (desktop) / single column (mobile) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
           {features.map((feature, i) => (
-            <FeatureCard key={feature.title} feature={feature} index={i} />
+            <FeatureCard key={feature.id} feature={feature} index={i} />
           ))}
         </div>
       </div>

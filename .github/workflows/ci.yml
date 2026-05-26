@@ -44,6 +44,9 @@ jobs:
       - name: Format check
         run: pnpm format:check
 
+      - name: Check i18n key consistency
+        run: pnpm --filter frontend check-i18n
+
       - name: Test
         run: pnpm test
 

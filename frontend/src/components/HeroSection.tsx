@@ -201,7 +201,7 @@ export default function HeroSection() {
             muted
             loop
             playsInline
-            poster="/images/hero-poster.jpg"
+            poster="/images/hero-poster.svg"
             onLoadedData={() => setVideoLoaded(true)}
             onError={() => setVideoError(true)}
           >

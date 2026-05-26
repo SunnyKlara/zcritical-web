@@ -25,17 +25,17 @@
 
 **需要交付的文件**
 
-| 路径                             | 用途                           | 规格                    | 备注                                   |
-| -------------------------------- | ------------------------------ | ----------------------- | -------------------------------------- |
-| `public/images/og-cover.jpg`     | Open Graph 分享卡封面          | 1200×630 JPG / PNG      | 必须 — 否则社媒分享空白                |
-| `public/images/hero-poster.jpg`  | Hero 视频封面（视频未加载时）  | 1920×1080               | 视频未加载时的占位                     |
+| 路径                             | 用途                            | 规格                    | 备注                                   |
+| -------------------------------- | ------------------------------- | ----------------------- | -------------------------------------- |
+| `public/images/og-cover.jpg`     | Open Graph 分享卡封面（PNG/JPG）| 1200×630 JPG / PNG      | 已有 SVG 占位 (`og-cover.svg`)，社媒兼容性更好则换 PNG |
+| `public/images/hero-poster.jpg`  | Hero 视频封面（视频未加载时）   | 1920×1080               | 已有 SVG 占位 (`hero-poster.svg`)      |
 | `public/videos/hero-bg.mp4`      | Hero 背景视频                  | 1920×1080, ≤5MB, H.264  | 没有则降级到 Canvas 粒子动效           |
 | `public/videos/hero-bg.webm`     | Hero 背景视频（VP9）           | 同上                    | Safari 优先 mp4                        |
 | `public/images/product-*.jpg`    | 产品主图（黑色 / 白色变体）    | 1600×1200 / 800×800     | 商品列表 / Checkout / Order email 都用 |
 | `public/images/hero-{1,2,3}.jpg` | 产品多角度展示                 | 1600×1000               | OverviewSection 滚动展示               |
-| `public/icons/icon-192.png`      | PWA Android 图标               | 192×192 PNG             | 当前是 SVG 占位                        |
-| `public/icons/icon-512.png`      | PWA Android 图标 / Apple touch | 512×512 PNG             | 当前是 SVG 占位                        |
-| `public/icons/icon-maskable.png` | PWA maskable 图标              | 512×512 PNG，安全区 80% | 用于 Android adaptive icon             |
+| `public/icons/icon-192.png`      | PWA Android 图标               | 192×192 PNG             | 当前 SVG (`icons/icon.svg`) 已可用     |
+| `public/icons/icon-512.png`      | PWA Android 图标 / Apple touch | 512×512 PNG             | 当前 SVG 已可用                        |
+| `public/icons/icon-maskable.png` | PWA maskable 图标              | 512×512 PNG，安全区 80% | 当前 SVG (`icons/icon-maskable.svg`) 已可用 |
 | `public/screenshots/app-*.png`   | APP 6 个功能页截图             | 750×1624 / 1080×1920    | AppShowcaseSection 轮播                |
 | `public/manuals/critical-v1.pdf` | 产品说明书（下载中心）         | A4 PDF                  | `/[locale]/download` 引用              |
 
@@ -116,26 +116,12 @@
 
 ### 2.1 营销组件深度国际化
 
-**当前状态**：以下 5 个营销组件文案仍是硬编码中文，没有走 `useTranslations`：
+**当前状态**：✅ **已完成**（v1.0+ 后续追加）
 
-| 组件                     | 行数 | 复杂度                       |
-| ------------------------ | ---- | ---------------------------- |
-| `OverviewSection.tsx`    | ~250 | 数据数组（产品多角度展示）   |
-| `FeaturesSection.tsx`    | ~400 | 8 个功能卡 + 每个含 SVG 动效 |
-| `SpecsSection.tsx`       | ~350 | 表格数据（10 行规格参数）    |
-| `UseCasesSection.tsx`    | ~300 | 4 个场景卡 + 描述            |
-| `AppShowcaseSection.tsx` | ~280 | 6 个 APP 功能页 + Embla 轮播 |
+OverviewSection / FeaturesSection / SpecsSection / UseCasesSection / AppShowcaseSection 全部使用 `useTranslations()`。
+zh.json + en.json 各 292 个 key，由 `pnpm --filter frontend check-i18n` CI 守门防止漂移。
 
-**为什么没做**：每个组件文案与组件结构（图标 / 路径 / 数值）深度交织，简单的字符串提取会导致组件结构和翻译数据脱节。需要先做"数据 / 视图分离"重构。
-
-**推荐方案**
-
-1. 把每个 section 的数据抽到 `frontend/src/data/<section>.ts`（视图无关）
-2. 把可翻译字段标记 `_i18n: { zh, en }`
-3. 在组件内通过 `useLocale()` 选择字段
-4. 或者更彻底：使用 `messages.json` + `next-intl` 的 `t.rich()`（但巨型嵌套结构在 JSON 里很难维护）
-
-**估时**：每个 section 0.5-1 天，5 个共约 3-5 天（含 QA）。
+数据/视图分离模式已建立：每个 section 内部用 `titleKey`/`descKey` 标记翻译字段，icons/positions/colors 等结构性属性保持静态。后续要新增 locale 只需复制一份 `messages/<locale>.json` 翻译。
 
 ### 2.2 Light 主题视觉适配
 
@@ -366,13 +352,12 @@
 
 ### 4.7 翻译 tooling
 
-**当前**：手动维护 `messages/{zh,en}.json`，翻译漂移容易出错。
+**当前状态**：✅ **已部分完成** — `pnpm --filter frontend check-i18n` 实现了关键检查（CI 已 wire），任何 zh/en 之间漂移的 key 都会让 CI 红条。
 
-**升级**：
+**剩余可优化**：
 
 - [ ] `i18n-ally` VSCode 插件（已 recommend，但实际未启用 lint 规则）
-- [ ] CI 跑 key 一致性检查（`@formatjs/cli extract` + diff）
-- [ ] 翻译平台对接（Crowdin / Lokalise）
+- [ ] 翻译平台对接（Crowdin / Lokalise）— 等多个 locale 时再做
 
 ### 4.8 A/B 测试基础设施
 

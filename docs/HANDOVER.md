@@ -273,3 +273,7 @@ git commit -m "feat: test"  # 通过
 - ✅ Seed 脚本（`pnpm --filter backend seed` — 商品 + 固件 + 默认管理员）
 - ✅ Hero 深度 i18n（5 个 key 全部翻译完成）
 - ✅ Light 主题 CSS 基础设施（变量 + tailwind 配置就绪，待组件层语义 token 改造）
+- ✅ 5 个营销组件深度 i18n（Overview / Features / Specs / UseCases / AppShowcase 全部走 useTranslations，292 个 key zh+en 全覆盖）
+- ✅ i18n key 一致性检查脚本（`pnpm --filter frontend check-i18n`，已 wire 进 CI）
+- ✅ PWA 图标 SVG 实现（icon.svg / icon-maskable.svg，无需依赖外部 PNG 资源也能上线）
+- ✅ OG 分享卡 SVG（`og-cover.svg`，1200×630 品牌封面，社媒分享立即可用）
