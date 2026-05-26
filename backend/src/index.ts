@@ -9,12 +9,14 @@ import { logger } from './config/logger'
 import { connectMongo } from './db/mongoose'
 import { createServer } from './server'
 import { seedDefaultAdmin } from './services/auth.service'
+import { startOrderCleanup, stopOrderCleanup } from './services/order-cleanup.service'
 
 const SHUTDOWN_TIMEOUT_MS = 10_000
 
 async function main(): Promise<void> {
   await connectMongo()
   await seedDefaultAdmin()
+  startOrderCleanup()
   const { server, io } = createServer()
 
   server.listen(env.PORT, () => {
@@ -44,7 +46,10 @@ async function main(): Promise<void> {
       })
       logger.info('HTTP server closed')
 
-      // 2. Disconnect Socket.io clients
+      // 2. Stop background cleanup
+      stopOrderCleanup()
+
+      // 3. Disconnect Socket.io clients
       io.disconnectSockets(true)
       await new Promise<void>((resolve) => io.close(() => resolve()))
       logger.info('Socket.io closed')

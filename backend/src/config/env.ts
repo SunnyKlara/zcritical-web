@@ -41,6 +41,15 @@ const EnvSchema = z
 
     SENTRY_DSN: z.string().optional(),
     LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
+
+    // PayPal (M4) — required in production
+    PAYPAL_CLIENT_ID: z.string().optional(),
+    PAYPAL_CLIENT_SECRET: z.string().optional(),
+    PAYPAL_MODE: z.enum(['sandbox', 'live']).default('sandbox'),
+    PAYPAL_WEBHOOK_ID: z.string().optional(),
+
+    // Order
+    ORDER_EXPIRY_MINUTES: z.coerce.number().int().positive().default(30),
   })
   .refine((v) => !v.SMTP_HOST || (v.SMTP_USER && v.SMTP_PASS), {
     message: 'SMTP_USER and SMTP_PASS are required when SMTP_HOST is set',

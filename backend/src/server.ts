@@ -14,11 +14,19 @@ import { leadRouter } from './routes/lead.routes'
 import { authRouter } from './routes/auth.routes'
 import { chatRouter } from './routes/chat.routes'
 import { openapiRouter } from './routes/openapi.routes'
+import { productRouter, adminProductRouter } from './routes/product.routes'
+import { orderRouter } from './routes/order.routes'
+import { adminOrderRouter } from './routes/admin-order.routes'
+import { webhookRouter } from './routes/webhook.routes'
 import { errorHandler, notFoundHandler } from './middleware/error.middleware'
 import { csrfCookieSetter, csrfProtection } from './middleware/csrf.middleware'
 import { requestId } from './middleware/request-id.middleware'
 import { registerSocketHandlers } from './socket'
-import { initSentry, sentryRequestHandler, installSentryExpressErrorHandler } from './lib/sentry'
+import {
+  initSentry,
+  sentryRequestHandler,
+  installSentryExpressErrorHandler,
+} from './lib/sentry'
 
 export function createServer(): {
   app: express.Express
@@ -31,29 +39,24 @@ export function createServer(): {
   const server = http.createServer(app)
   const io = new IOServer(server, {
     cors: { origin: env.FRONTEND_URL, credentials: true },
-    // Drop oversized payloads early
-    maxHttpBufferSize: 1e6, // 1 MB
+    maxHttpBufferSize: 1e6,
   })
 
   app.disable('x-powered-by')
-  // Trust first proxy (Render / Cloudflare) so req.ip honors X-Forwarded-For.
   app.set('trust proxy', 1)
 
-  // ─── Observability ─────────────────────────────────────────────────────────
   app.use(sentryRequestHandler)
-  app.use(requestId) // attach req.id BEFORE pino-http so logs include it
+  app.use(requestId)
 
   app.use(
     pinoHttp({
       logger,
-      // Use request-id middleware's ID
       genReqId: (req) => (req as express.Request).id,
       customLogLevel: (_req, res, err) => {
         if (err || res.statusCode >= 500) return 'error'
         if (res.statusCode >= 400) return 'warn'
         return 'info'
       },
-      // Skip noisy health checks at info level
       autoLogging: {
         ignore: (req) => {
           const url = (req as express.Request).originalUrl
@@ -63,7 +66,6 @@ export function createServer(): {
     }),
   )
 
-  // ─── Security headers ──────────────────────────────────────────────────────
   app.use(
     helmet({
       contentSecurityPolicy: isProd
@@ -87,28 +89,37 @@ export function createServer(): {
     }),
   )
 
-  // ─── Compression (gzip/brotli) ────────────────────────────────────────────
-  // Skip compression for Server-Sent Events / WebSocket upgrades.
   app.use(
     compression({
       filter: (req, res) => {
         if (req.headers['x-no-compression']) return false
         return compression.filter(req, res)
       },
-      threshold: 1024, // only compress responses > 1KB
+      threshold: 1024,
     }),
   )
 
-  // ─── Cross-origin + parsers ────────────────────────────────────────────────
   app.use(cors({ origin: env.FRONTEND_URL, credentials: true }))
-  app.use(express.json({ limit: '100kb' }))
+
+  // ─── Body parsing — capture raw body for PayPal webhook signature verification ─
+  app.use(
+    express.json({
+      limit: '100kb',
+      verify: (req, _res, buf) => {
+        if (
+          (req as express.Request).originalUrl ===
+          '/api/payments/paypal/webhook'
+        ) {
+          ;(req as express.Request & { rawBody?: Buffer }).rawBody = buf
+        }
+      },
+    }),
+  )
   app.use(cookieParser())
 
-  // ─── CSRF (double-submit cookie) ───────────────────────────────────────────
   app.use(csrfCookieSetter)
   app.use('/api', csrfProtection)
 
-  // ─── Rate limit (global fallback) ──────────────────────────────────────────
   const globalLimiter = rateLimit({
     windowMs: 60_000,
     limit: 300,
@@ -124,8 +135,12 @@ export function createServer(): {
   app.use('/api/auth', authRouter)
   app.use('/api/leads', leadRouter)
   app.use('/api/chat', chatRouter)
+  app.use('/api/products', productRouter)
+  app.use('/api/orders', orderRouter)
+  app.use('/api/admin/products', adminProductRouter)
+  app.use('/api/admin/orders', adminOrderRouter)
+  app.use('/api/payments', webhookRouter)
 
-  // ─── Tail handlers ─────────────────────────────────────────────────────────
   app.use(notFoundHandler)
   installSentryExpressErrorHandler(app)
   app.use(errorHandler)

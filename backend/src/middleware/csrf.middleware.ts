@@ -17,7 +17,14 @@ const TOKEN_BYTES = 32
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS'])
 
 /** Public POST endpoints that don't use cookie auth — exempt from CSRF. */
-const CSRF_EXEMPT_PATHS = new Set<string>(['/api/leads', '/api/auth/login', '/api/chat/session'])
+const CSRF_EXEMPT_PATHS = new Set<string>([
+  '/api/leads',
+  '/api/auth/login',
+  '/api/chat/session',
+  '/api/orders',
+  '/api/orders/payments/paypal/capture',
+  '/api/payments/paypal/webhook',
+])
 
 /** Set (or refresh) the CSRF cookie on every response. */
 export function csrfCookieSetter(req: Request, res: Response, next: NextFunction): void {
