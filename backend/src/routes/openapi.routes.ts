@@ -271,6 +271,7 @@ const spec = {
         },
         responses: {
           '200': {
+            description: 'Login successful',
             content: {
               'application/json': { schema: { $ref: '#/components/schemas/LoginResponse' } },
             },
@@ -312,6 +313,7 @@ const spec = {
         security: [{ BearerAuth: [] }],
         responses: {
           '200': {
+            description: 'Authenticated user',
             content: {
               'application/json': {
                 schema: {
@@ -331,6 +333,7 @@ const spec = {
         summary: 'Issue visitor session token',
         responses: {
           '200': {
+            description: 'Visitor session issued',
             content: {
               'application/json': { schema: { $ref: '#/components/schemas/IssueSessionResponse' } },
             },
