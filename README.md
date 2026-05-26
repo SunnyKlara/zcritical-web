@@ -1,15 +1,17 @@
 # Critical
 
-> 智能风洞模拟器 — 品牌站 + 后端 + 共享契约
+> 智能风洞模拟器 — 全栈 Monorepo（品牌站 + 后端 + 共享契约）
 
 ## 项目结构
 
 ```
 critical/
-├── frontend/      # Next.js 14 营销站 + 管理后台（部署到 Vercel）
-├── backend/       # Express + Socket.io API（部署到 Render）
-├── shared/        # @critical/shared — Zod schemas / 类型 / 常量
-└── docs/          # 架构文档、ADR、路线图
+├── frontend/      # Next.js 14 营销站 + 管理后台（i18n + 主题）
+├── backend/       # Express + Socket.io API + PayPal + Firmware/Device
+├── shared/        # @critical/shared — Zod schemas / 类型 / 常量 / Socket 事件
+├── docs/          # 架构文档、ADR、路线图、API、部署手册
+├── docker/        # Docker 部署配置
+└── .github/       # CI workflows / Dependabot / CodeQL
 ```
 
 ## 快速开始
@@ -17,62 +19,97 @@ critical/
 需要 Node 20+ 和 pnpm 9.x。
 
 ```bash
+# 一次性设置
+corepack enable && corepack prepare pnpm@9.12.0 --activate
+
 # 安装依赖
 pnpm install
 
-# 同时启动前后端（在两个终端中）
+# 启动 MongoDB（Docker）
+pnpm dev:db
+
+# 配置环境变量
+cp backend/.env.example backend/.env
+cp frontend/.env.local.example frontend/.env.local
+
+# 启动后端 + 前端（分别在 2 个终端）
 pnpm --filter=backend dev      # http://localhost:4000
 pnpm --filter=frontend dev     # http://localhost:3000
 
-# 类型检查 / lint / 测试（所有 workspace）
+# 验证 / 构建
 pnpm typecheck
 pnpm lint
 pnpm test
-
-# 构建（所有 workspace）
 pnpm build
+
+# 包体积分析
+pnpm --filter frontend build:analyze
+
+# E2E 测试
+pnpm --filter frontend test:e2e:install
+pnpm --filter frontend test:e2e
 ```
-
-## 环境变量
-
-每个 package 有自己的 `.env.example`：
-
-- `backend/.env.example` → 复制为 `backend/.env`
-- `frontend/.env.local.example` → 复制为 `frontend/.env.local`
-- 根目录 `.env.example` 是所有变量的目录索引（不要复制使用）
-
-最小开发环境需要：
-
-- 本地 MongoDB（`mongodb://localhost:27017/critical`）或免费的 MongoDB Atlas M0
-- SMTP 可选（不配置则邮件通知静默跳过）
-
-## 文档
-
-- [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — 架构总图与设计模型
-- [`docs/DECISIONS.md`](./docs/DECISIONS.md) — 架构决策记录（ADR）
-- [`docs/ROADMAP.md`](./docs/ROADMAP.md) — 6 周开发路线图
-- [`docs/DEPLOY.md`](./docs/DEPLOY.md) — 部署手册
 
 ## 闭环里程碑
 
-| 里程碑 | 目标                             | 状态                            |
-| ------ | -------------------------------- | ------------------------------- |
-| M1     | 品牌展示站                       | ✅ 已完成                       |
-| M2     | 询盘转化（Lead + 邮件通知）      | ✅ 大部分完成（仅缺部署）       |
-| M3     | 管理后台 + Lead 管理             | ✅ 已完成（Socket.io 客服待补） |
-| M4     | 交易闭环（商品 + 订单 + PayPal） | ⏳ 待开始                       |
-| M5     | 固件分发（OTA + R2 存储）        | ⏳ 待开始                       |
-| M6     | 设备绑定（激活 + APP 对接）      | ⏳ 待开始                       |
+| 里程碑 | 目标 | 状态 |
+|--------|------|------|
+| M1 品牌展示站 | 静态 SEO + i18n（zh/en） | ✅ 完成 |
+| M2 询盘转化 | Lead 表单 + 邮件通知 + Sentry | ✅ 完成 |
+| M3 后台 + 客服 | JWT Admin / Lead 管理 / Socket.io 实时客服 | ✅ 完成 |
+| M4 交易闭环 | 商品 / 订单 / PayPal / 退款 / 物流 | ✅ 完成 |
+| M5 固件分发 | OTA + 灰度发布 + 版本管理 | ✅ 完成 |
+| M6 设备绑定 | 激活 / 心跳 / 用户-设备-订单关联 | ✅ 完成 |
 
 详见 [`docs/ROADMAP.md`](./docs/ROADMAP.md)。
 
 ## 技术栈
 
-| 层       | 技术                                                                 | 部署              |
-| -------- | -------------------------------------------------------------------- | ----------------- |
-| Frontend | Next.js 14 App Router + Tailwind + Framer Motion + next-intl         | Vercel            |
-| Backend  | Express + Socket.io + MongoDB (Mongoose) + JWT + Zod + Pino + Sentry | Render            |
-| Shared   | TypeScript + Zod                                                     | workspace package |
-| Storage  | Cloudflare R2（M5 起）                                               | Cloudflare        |
+| 层 | 技术 | 部署 |
+|----|------|------|
+| Frontend | Next.js 14 App Router + Tailwind + Framer Motion + next-intl + next-themes | Vercel |
+| Backend | Express + Socket.io + MongoDB (Mongoose) + JWT + Zod + Pino + Sentry | Render |
+| Shared | TypeScript + Zod | workspace package |
+| Storage | Cloudflare R2（M5 起，固件二进制） | Cloudflare |
+| Payment | PayPal Orders API v2（M4 起） | PayPal |
+| Container | Docker 多阶段构建 + 非 root 用户 | — |
 
-参考 [ModelZone (mojing) 项目](../mojing/) 的成熟架构。
+## 关键文档
+
+- [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — 闭环架构总图
+- [`docs/DECISIONS.md`](./docs/DECISIONS.md) — ADR 决策记录
+- [`docs/ROADMAP.md`](./docs/ROADMAP.md) — 6 周开发路线图
+- [`docs/DEPLOY.md`](./docs/DEPLOY.md) — 部署手册
+- [`docs/API.md`](./docs/API.md) — API 参考（OpenAPI 3.1 spec at `/api/openapi.json`）
+- [`docs/HANDOVER.md`](./docs/HANDOVER.md) — 30 分钟交接文档
+- [`SECURITY.md`](./SECURITY.md) — 安全策略与漏洞披露
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — 贡献指南
+
+## 已就绪的工程化
+
+- ✅ pnpm 9 workspaces
+- ✅ Husky v9 + commitlint + lint-staged（pre-commit + commit-msg 真激活）
+- ✅ GitHub Actions CI（typecheck / lint / format:check / test / audit / build / Lighthouse on PR）
+- ✅ CodeQL 安全扫描（每周 + PR）
+- ✅ Dependabot（按 ecosystem 分组，自动 PR）
+- ✅ Prettier + ESLint + EditorConfig
+- ✅ VSCode 配置（推荐扩展 + 工作区设置）
+- ✅ PR / Issue 模板
+- ✅ CODEOWNERS 自动 review 分配
+- ✅ SECURITY.md + security.txt
+- ✅ Docker + render.yaml 部署蓝图
+- ✅ docker-compose.dev.yml 一键启动 MongoDB
+
+## 测试覆盖
+
+```
+38 tests passing
+├── 14 shared schema tests (Zod validation)
+└── 24 backend integration tests
+    ├── 4 smoke tests (env / logger / models)
+    ├── 3 health endpoint tests
+    ├── 7 leads API tests
+    └── 10 auth + auth-protected tests
+```
+
+E2E（Playwright）配置就绪：home / admin / SEO / 404。
