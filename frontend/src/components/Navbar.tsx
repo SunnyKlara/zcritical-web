@@ -60,7 +60,7 @@ export default function Navbar() {
           <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/50 flex items-center justify-center">
             <span className="text-primary font-bold text-sm">C</span>
           </div>
-          <span className="text-xl font-bold tracking-wider">CRITICAL</span>
+          <span className="text-xl font-bold tracking-wider text-text-primary">CRITICAL</span>
         </Link>
 
         {/* Desktop Nav */}
@@ -70,7 +70,7 @@ export default function Navbar() {
               <a
                 key={link.hash}
                 href={link.hash}
-                className="px-3 py-1.5 text-sm text-gray-300 hover:text-primary rounded-lg hover:bg-white/5 transition-all duration-200"
+                className="px-3 py-1.5 text-sm text-text-secondary hover:text-primary rounded-lg hover:bg-surface-card transition-all duration-200"
               >
                 {link.label}
               </a>
@@ -78,14 +78,14 @@ export default function Navbar() {
               <Link
                 key={link.hash}
                 href={`/${link.hash}` as `/${string}`}
-                className="px-3 py-1.5 text-sm text-gray-300 hover:text-primary rounded-lg hover:bg-white/5 transition-all duration-200"
+                className="px-3 py-1.5 text-sm text-text-secondary hover:text-primary rounded-lg hover:bg-surface-card transition-all duration-200"
               >
                 {link.label}
               </Link>
             ),
           )}
 
-          <div className="w-px h-4 bg-white/10 mx-2" />
+          <div className="w-px h-4 bg-surface-border mx-2" />
 
           {pageLinks.map((link) => (
             <Link
@@ -94,14 +94,14 @@ export default function Navbar() {
               className={`px-3 py-1.5 text-sm rounded-lg transition-all duration-200 ${
                 isActivePageLink(link.href)
                   ? 'text-primary bg-primary/10'
-                  : 'text-gray-300 hover:text-primary hover:bg-white/5'
+                  : 'text-text-secondary hover:text-primary hover:bg-surface-card'
               }`}
             >
               {link.label}
             </Link>
           ))}
 
-          <div className="w-px h-4 bg-white/10 mx-2" />
+          <div className="w-px h-4 bg-surface-border mx-2" />
 
           <ThemeToggle />
           <LocaleSwitcher />
@@ -132,13 +132,13 @@ export default function Navbar() {
           aria-expanded={mobileOpen}
         >
           <span
-            className={`w-6 h-0.5 bg-white transition-transform ${mobileOpen ? 'rotate-45 translate-y-2' : ''}`}
+            className={`w-6 h-0.5 bg-text-primary transition-transform ${mobileOpen ? 'rotate-45 translate-y-2' : ''}`}
           />
           <span
-            className={`w-6 h-0.5 bg-white transition-opacity ${mobileOpen ? 'opacity-0' : ''}`}
+            className={`w-6 h-0.5 bg-text-primary transition-opacity ${mobileOpen ? 'opacity-0' : ''}`}
           />
           <span
-            className={`w-6 h-0.5 bg-white transition-transform ${mobileOpen ? '-rotate-45 -translate-y-2' : ''}`}
+            className={`w-6 h-0.5 bg-text-primary transition-transform ${mobileOpen ? '-rotate-45 -translate-y-2' : ''}`}
           />
         </button>
       </div>
@@ -153,7 +153,7 @@ export default function Navbar() {
             className="md:hidden glass mt-2 mx-4 rounded-xl overflow-hidden"
           >
             <div className="flex flex-col p-4 gap-1">
-              <p className="text-[10px] uppercase tracking-wider text-gray-500 px-3 pt-1 pb-2">
+              <p className="text-[10px] uppercase tracking-wider text-text-tertiary px-3 pt-1 pb-2">
                 {t('homeSection')}
               </p>
               {sectionLinks.map((link) =>
@@ -162,7 +162,7 @@ export default function Navbar() {
                     key={link.hash}
                     href={link.hash}
                     onClick={() => setMobileOpen(false)}
-                    className="text-gray-300 hover:text-primary px-3 py-2 rounded-lg hover:bg-white/5 transition-colors"
+                    className="text-text-secondary hover:text-primary px-3 py-2 rounded-lg hover:bg-surface-card transition-colors"
                   >
                     {link.label}
                   </a>
@@ -171,16 +171,16 @@ export default function Navbar() {
                     key={link.hash}
                     href={`/${link.hash}` as `/${string}`}
                     onClick={() => setMobileOpen(false)}
-                    className="text-gray-300 hover:text-primary px-3 py-2 rounded-lg hover:bg-white/5 transition-colors"
+                    className="text-text-secondary hover:text-primary px-3 py-2 rounded-lg hover:bg-surface-card transition-colors"
                   >
                     {link.label}
                   </Link>
                 ),
               )}
 
-              <div className="h-px bg-white/5 my-2" />
+              <div className="h-px bg-surface-divider my-2" />
 
-              <p className="text-[10px] uppercase tracking-wider text-gray-500 px-3 pt-1 pb-2">
+              <p className="text-[10px] uppercase tracking-wider text-text-tertiary px-3 pt-1 pb-2">
                 {t('more')}
               </p>
               {pageLinks.map((link) => (
@@ -191,14 +191,14 @@ export default function Navbar() {
                   className={`px-3 py-2 rounded-lg transition-colors ${
                     isActivePageLink(link.href)
                       ? 'text-primary bg-primary/10'
-                      : 'text-gray-300 hover:text-primary hover:bg-white/5'
+                      : 'text-text-secondary hover:text-primary hover:bg-surface-card'
                   }`}
                 >
                   {link.label}
                 </Link>
               ))}
 
-              <div className="h-px bg-white/5 my-2" />
+              <div className="h-px bg-surface-divider my-2" />
 
               <div className="flex items-center gap-2 px-3 py-1">
                 <ThemeToggle />

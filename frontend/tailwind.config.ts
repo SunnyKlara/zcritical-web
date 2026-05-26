@@ -41,19 +41,22 @@ const config: Config = {
           600: '#222230', // Borders, dividers
           500: '#2A2A3A', // Hover states
         },
-        // Text hierarchy
+        // Text hierarchy (CSS variable driven so theme switches at runtime)
         text: {
-          primary: '#FFFFFF',
-          secondary: '#A0A0B0',
-          tertiary: '#6B6B80',
-          muted: '#4A4A5A',
+          primary: 'var(--text-primary)',
+          secondary: 'var(--text-secondary)',
+          tertiary: 'var(--text-tertiary)',
+          muted: 'var(--text-muted)',
         },
-        // Surface tokens (glass cards)
+        // Surface tokens (glass cards) — also CSS variable driven
         surface: {
-          card: 'rgba(255, 255, 255, 0.05)',
-          'card-hover': 'rgba(255, 255, 255, 0.08)',
-          border: 'rgba(255, 255, 255, 0.1)',
-          'border-hover': 'rgba(255, 255, 255, 0.15)',
+          card: 'var(--surface-card)',
+          'card-hover': 'var(--surface-card-hover)',
+          border: 'var(--surface-border)',
+          'border-hover': 'var(--surface-border-hover)',
+          glass: 'var(--surface-glass)',
+          input: 'var(--surface-input)',
+          divider: 'var(--surface-divider)',
         },
       },
 
