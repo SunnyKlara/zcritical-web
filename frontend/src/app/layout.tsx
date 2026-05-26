@@ -56,14 +56,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: 'Critical',
-    images: [
-      {
-        url: '/images/og-cover.svg',
-        width: 1200,
-        height: 630,
-        alt: 'Critical Smart Wind Tunnel Simulator',
-      },
-    ],
+    // og:image is auto-injected from src/app/opengraph-image.tsx
   },
   robots: {
     index: true,
@@ -76,10 +69,7 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  icons: {
-    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
-    apple: [{ url: '/icon.svg', type: 'image/svg+xml' }],
-  },
+  // Icons are auto-injected from src/app/icon.tsx + apple-icon.tsx
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

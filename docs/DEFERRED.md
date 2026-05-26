@@ -25,19 +25,19 @@
 
 **需要交付的文件**
 
-| 路径                             | 用途                             | 规格                    | 备注                                                   |
-| -------------------------------- | -------------------------------- | ----------------------- | ------------------------------------------------------ |
-| `public/images/og-cover.jpg`     | Open Graph 分享卡封面（PNG/JPG） | 1200×630 JPG / PNG      | 已有 SVG 占位 (`og-cover.svg`)，社媒兼容性更好则换 PNG |
-| `public/images/hero-poster.jpg`  | Hero 视频封面（视频未加载时）    | 1920×1080               | 已有 SVG 占位 (`hero-poster.svg`)                      |
-| `public/videos/hero-bg.mp4`      | Hero 背景视频                    | 1920×1080, ≤5MB, H.264  | 没有则降级到 Canvas 粒子动效                           |
-| `public/videos/hero-bg.webm`     | Hero 背景视频（VP9）             | 同上                    | Safari 优先 mp4                                        |
-| `public/images/product-*.jpg`    | 产品主图（黑色 / 白色变体）      | 1600×1200 / 800×800     | 商品列表 / Checkout / Order email 都用                 |
-| `public/images/hero-{1,2,3}.jpg` | 产品多角度展示                   | 1600×1000               | OverviewSection 滚动展示                               |
-| `public/icons/icon-192.png`      | PWA Android 图标                 | 192×192 PNG             | 当前 SVG (`icons/icon.svg`) 已可用                     |
-| `public/icons/icon-512.png`      | PWA Android 图标 / Apple touch   | 512×512 PNG             | 当前 SVG 已可用                                        |
-| `public/icons/icon-maskable.png` | PWA maskable 图标                | 512×512 PNG，安全区 80% | 当前 SVG (`icons/icon-maskable.svg`) 已可用            |
-| `public/screenshots/app-*.png`   | APP 6 个功能页截图               | 750×1624 / 1080×1920    | AppShowcaseSection 轮播                                |
-| `public/manuals/critical-v1.pdf` | 产品说明书（下载中心）           | A4 PDF                  | `/[locale]/download` 引用                              |
+| 路径                             | 用途                             | 规格                    | 备注                                                               |
+| -------------------------------- | -------------------------------- | ----------------------- | ------------------------------------------------------------------ |
+| `public/images/og-cover.jpg`     | Open Graph 分享卡封面（PNG/JPG） | 1200×630 JPG / PNG      | ✅ 已完成 — `/opengraph-image` 路由用 next/og 在 edge 自动生成 PNG |
+| `public/images/hero-poster.jpg`  | Hero 视频封面（视频未加载时）    | 1920×1080               | 已有 SVG 占位 (`hero-poster.svg`)                                  |
+| `public/videos/hero-bg.mp4`      | Hero 背景视频                    | 1920×1080, ≤5MB, H.264  | 没有则降级到 Canvas 粒子动效                                       |
+| `public/videos/hero-bg.webm`     | Hero 背景视频（VP9）             | 同上                    | Safari 优先 mp4                                                    |
+| `public/images/product-*.jpg`    | 产品主图（黑色 / 白色变体）      | 1600×1200 / 800×800     | 商品列表 / Checkout / Order email 都用                             |
+| `public/images/hero-{1,2,3}.jpg` | 产品多角度展示                   | 1600×1000               | OverviewSection 滚动展示                                           |
+| `public/icons/icon-192.png`      | PWA Android 图标                 | 192×192 PNG             | ✅ `/icon` 路由用 next/og 自动生成 PNG（也保留 SVG 兜底）          |
+| `public/icons/icon-512.png`      | PWA Android 图标 / Apple touch   | 512×512 PNG             | ✅ `/icon` + `/apple-icon` 路由自动生成                            |
+| `public/icons/icon-maskable.png` | PWA maskable 图标                | 512×512 PNG，安全区 80% | 当前 SVG (`icons/icon-maskable.svg`) 已可用                        |
+| `public/screenshots/app-*.png`   | APP 6 个功能页截图               | 750×1624 / 1080×1920    | AppShowcaseSection 轮播                                            |
+| `public/manuals/critical-v1.pdf` | 产品说明书（下载中心）           | A4 PDF                  | `/[locale]/download` 引用                                          |
 
 **推荐工具链**
 
