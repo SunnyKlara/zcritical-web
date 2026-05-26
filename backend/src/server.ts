@@ -18,6 +18,8 @@ import { productRouter, adminProductRouter } from './routes/product.routes'
 import { orderRouter } from './routes/order.routes'
 import { adminOrderRouter } from './routes/admin-order.routes'
 import { webhookRouter } from './routes/webhook.routes'
+import { firmwareRouter, adminFirmwareRouter } from './routes/firmware.routes'
+import { deviceRouter, adminDeviceRouter } from './routes/device.routes'
 import { errorHandler, notFoundHandler } from './middleware/error.middleware'
 import { csrfCookieSetter, csrfProtection } from './middleware/csrf.middleware'
 import { requestId } from './middleware/request-id.middleware'
@@ -137,8 +139,12 @@ export function createServer(): {
   app.use('/api/chat', chatRouter)
   app.use('/api/products', productRouter)
   app.use('/api/orders', orderRouter)
+  app.use('/api/firmware', firmwareRouter)
+  app.use('/api/devices', deviceRouter)
   app.use('/api/admin/products', adminProductRouter)
   app.use('/api/admin/orders', adminOrderRouter)
+  app.use('/api/admin/firmware', adminFirmwareRouter)
+  app.use('/api/admin/devices', adminDeviceRouter)
   app.use('/api/payments', webhookRouter)
 
   app.use(notFoundHandler)

@@ -24,6 +24,8 @@ const CSRF_EXEMPT_PATHS = new Set<string>([
   '/api/orders',
   '/api/orders/payments/paypal/capture',
   '/api/payments/paypal/webhook',
+  '/api/devices/activate',
+  '/api/devices/heartbeat',
 ])
 
 /** Set (or refresh) the CSRF cookie on every response. */
