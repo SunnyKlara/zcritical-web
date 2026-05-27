@@ -13,20 +13,58 @@ export interface AdminUser {
   displayName?: string
   avatarUrl?: string
   disabled: boolean
+  /** True iff TOTP 2FA is currently active. */
+  totpEnabled?: boolean
 }
 
-interface LoginResponse {
+interface AuthenticatedLoginResponse {
+  status: 'authenticated'
   accessToken: string
   user: AdminUser
+}
+
+interface MfaRequiredLoginResponse {
+  status: 'mfa_required'
+  mfaToken: string
+}
+
+type LoginResponse = AuthenticatedLoginResponse | MfaRequiredLoginResponse
+
+/**
+ * The result the login form sees:
+ *   - 'authenticated' → normal flow, AuthContext already populated.
+ *   - 'mfa_required'  → caller must show the 6-digit code step and then
+ *                       call verify2FA() with the returned mfaToken.
+ */
+export type LoginOutcome =
+  | { status: 'authenticated' }
+  | { status: 'mfa_required'; mfaToken: string }
+
+export interface Setup2FAData {
+  secret: string
+  uri: string
+  qr: string
+}
+
+export interface VerifySetup2FAResult {
+  recoveryCodes: string[]
 }
 
 interface AuthContextValue {
   user: AdminUser | null
   accessToken: string | null
   loading: boolean
-  login: (username: string, password: string) => Promise<void>
+  login: (username: string, password: string) => Promise<LoginOutcome>
+  verify2FA: (
+    mfaToken: string,
+    args: { code?: string; recoveryCode?: string },
+  ) => Promise<{ attemptsRemaining?: number }>
   logout: () => Promise<void>
   refresh: () => Promise<boolean>
+  // 2FA management (must be called while authenticated).
+  setupTotp: () => Promise<Setup2FAData>
+  verifySetupTotp: (code: string) => Promise<VerifySetup2FAResult>
+  disableTotp: (args: { password: string; code?: string; recoveryCode?: string }) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -67,15 +105,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refresh().finally(() => setLoading(false))
   }, [refresh])
 
-  const login = useCallback(async (username: string, password: string) => {
+  /**
+   * Step 1 of login. Returns 'authenticated' if 2FA disabled / not set up,
+   * or 'mfa_required' along with an opaque token to be exchanged at
+   * /verify-2fa. The form is responsible for routing to the second step.
+   */
+  const login = useCallback(async (username: string, password: string): Promise<LoginOutcome> => {
     const response = await apiFetch<LoginResponse>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     })
-    setAccessToken(response.accessToken)
-    setUser(response.user)
-    sessionStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken)
+    if (response.status === 'authenticated') {
+      setAccessToken(response.accessToken)
+      setUser(response.user)
+      sessionStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken)
+      return { status: 'authenticated' }
+    }
+    return { status: 'mfa_required', mfaToken: response.mfaToken }
   }, [])
+
+  /**
+   * Step 2 of login — exchanges mfaToken + (TOTP code | recovery code)
+   * for full session. On successful response, AuthContext is populated as
+   * with a normal login.
+   *
+   * Returns { attemptsRemaining } only on the 401 path (so the form can
+   * show "X tries left" without parsing ApiError twice).
+   */
+  const verify2FA = useCallback(
+    async (
+      mfaToken: string,
+      args: { code?: string; recoveryCode?: string },
+    ): Promise<{ attemptsRemaining?: number }> => {
+      try {
+        const response = await apiFetch<AuthenticatedLoginResponse>('/api/auth/verify-2fa', {
+          method: 'POST',
+          body: JSON.stringify({ mfaToken, ...args }),
+        })
+        setAccessToken(response.accessToken)
+        setUser(response.user)
+        sessionStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken)
+        return {}
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 401) {
+          const details = err.details as { attemptsRemaining?: number } | undefined
+          if (typeof details?.attemptsRemaining === 'number') {
+            // Re-throw with metadata so the caller can branch on remaining attempts
+            throw Object.assign(err, { attemptsRemaining: details.attemptsRemaining })
+          }
+        }
+        throw err
+      }
+    },
+    [],
+  )
 
   const logout = useCallback(async () => {
     try {
@@ -88,8 +171,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionStorage.removeItem(ACCESS_TOKEN_KEY)
   }, [])
 
+  // ─── 2FA management ──────────────────────────────────────────────────────
+
+  const requireToken = useCallback((): string => {
+    if (!accessToken) {
+      throw new ApiError(401, 'Not authenticated')
+    }
+    return accessToken
+  }, [accessToken])
+
+  const setupTotp = useCallback(async (): Promise<Setup2FAData> => {
+    const token = requireToken()
+    return apiFetch<Setup2FAData>('/api/auth/2fa/setup', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    })
+  }, [requireToken])
+
+  const verifySetupTotp = useCallback(
+    async (code: string): Promise<VerifySetup2FAResult> => {
+      const token = requireToken()
+      const result = await apiFetch<VerifySetup2FAResult>('/api/auth/2fa/verify-setup', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ code }),
+      })
+      // Activation succeeded — refresh user so totpEnabled flag is current.
+      await refresh()
+      return result
+    },
+    [requireToken, refresh],
+  )
+
+  const disableTotp = useCallback(
+    async (args: { password: string; code?: string; recoveryCode?: string }): Promise<void> => {
+      const token = requireToken()
+      await apiFetch<{ ok: true }>('/api/auth/2fa/disable', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(args),
+      })
+      await refresh()
+    },
+    [requireToken, refresh],
+  )
+
   return (
-    <AuthContext.Provider value={{ user, accessToken, loading, login, logout, refresh }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        accessToken,
+        loading,
+        login,
+        verify2FA,
+        logout,
+        refresh,
+        setupTotp,
+        verifySetupTotp,
+        disableTotp,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )
