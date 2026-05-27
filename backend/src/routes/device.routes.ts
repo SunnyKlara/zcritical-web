@@ -9,6 +9,7 @@ import { requireAdmin } from '../middleware/auth.middleware'
 import { audit } from '../services/audit.service'
 import { logger } from '../config/logger'
 import { isTest } from '../config/env'
+import { emailBlindIndex } from '../lib/crypto'
 
 export const deviceRouter = Router()
 export const adminDeviceRouter = Router()
@@ -39,7 +40,7 @@ deviceRouter.post(
 
       // Try to link to an order by email (optional — gray-market devices have none)
       const linkedOrder = await OrderModel.findOne({
-        email,
+        emailHash: emailBlindIndex('order.email', email),
         status: { $in: ['paid', 'shipped', 'delivered'] },
       }).lean()
 

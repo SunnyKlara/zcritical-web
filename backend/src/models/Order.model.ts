@@ -5,6 +5,8 @@ import {
   type OrderStatus,
   type PaymentMethod,
 } from '@critical/shared'
+import { encryptedFieldsPlugin } from '../db/encrypted-fields.plugin'
+import { emailBlindIndex } from '../lib/crypto'
 
 export interface OrderItemDoc {
   productId: Schema.Types.ObjectId
@@ -18,6 +20,8 @@ export interface OrderItemDoc {
 export interface OrderDocument extends Document {
   orderNo: string
   email: string
+  /** HMAC blind index of `email` — never surfaced. Used for equality lookups. */
+  emailHash: string
   status: OrderStatus
   items: OrderItemDoc[]
   subtotal: number
@@ -50,6 +54,7 @@ export interface OrderDocument extends Document {
   ip?: string
   userAgent?: string
   notes?: string
+  scheduledDeleteAt?: Date | null
   createdAt: Date
   updatedAt: Date
 }
@@ -69,7 +74,8 @@ const OrderItemSchema = new Schema(
 const OrderSchema = new Schema<OrderDocument>(
   {
     orderNo: { type: String, required: true, unique: true, index: true },
-    email: { type: String, required: true, trim: true, lowercase: true, index: true },
+    email: { type: String, required: true, trim: true, lowercase: true },
+    emailHash: { type: String, required: true, index: true, select: false },
     status: { type: String, enum: ORDER_STATUSES, default: 'pending_payment', index: true },
     items: { type: [OrderItemSchema], required: true, validate: (v: unknown[]) => v.length > 0 },
     subtotal: { type: Number, required: true, min: 0 },
@@ -102,12 +108,57 @@ const OrderSchema = new Schema<OrderDocument>(
     ip: { type: String },
     userAgent: { type: String },
     notes: { type: String, maxlength: 2000 },
+    /** Set by GDPR delete request; cron worker hard-deletes once elapsed. */
+    scheduledDeleteAt: { type: Date, default: null, index: true },
   },
   { timestamps: true },
 )
 
-OrderSchema.index({ email: 1, orderNo: 1 })
+// Email is encrypted, so don't keep an index on it. orderNo / status / emailHash
+// are still indexed and cover every existing query path.
 OrderSchema.index({ status: 1, createdAt: -1 })
 OrderSchema.index({ createdAt: -1 })
+
+/** Maintain emailHash for blind-index lookups. */
+OrderSchema.pre('validate', function setEmailHash(next) {
+  const doc = this as unknown as OrderDocument & { isModified(p: string): boolean }
+  if (typeof doc.email === 'string' && (doc.isNew || doc.isModified('email'))) {
+    doc.emailHash = emailBlindIndex('order.email', doc.email)
+  }
+  next()
+})
+
+OrderSchema.pre(
+  ['findOneAndUpdate', 'updateOne', 'updateMany'],
+  function setEmailHashOnUpdate(next) {
+    const update = (
+      this as unknown as {
+        getUpdate(): Record<string, unknown> | null
+      }
+    ).getUpdate()
+    if (!update) return next()
+    const set = (update.$set as Record<string, unknown>) ?? update
+    const newEmail = set.email
+    if (typeof newEmail === 'string') {
+      set.emailHash = emailBlindIndex('order.email', newEmail)
+      if (update !== set) update.$set = set
+      ;(this as unknown as { setUpdate(u: unknown): void }).setUpdate(update)
+    }
+    next()
+  },
+)
+
+OrderSchema.plugin(encryptedFieldsPlugin, {
+  fields: [
+    'email',
+    // Shipping PII
+    'shippingAddress.fullName',
+    'shippingAddress.line1',
+    'shippingAddress.line2',
+    'shippingAddress.phone',
+    // postalCode + city + state + country are useful for fraud / tax in cleartext;
+    // they're still trimmed via schema. Encrypt the rest.
+  ],
+})
 
 export const OrderModel = model<OrderDocument>('Order', OrderSchema)

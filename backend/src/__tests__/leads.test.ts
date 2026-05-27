@@ -7,6 +7,9 @@ import request from 'supertest'
 import type { Express } from 'express'
 import { createServer } from '../server'
 import { LeadModel } from '../models/Lead.model'
+import { decryptLeanOne } from '../db/encrypted-fields.plugin'
+
+const PII_FIELDS = ['name', 'email', 'phone', 'message']
 
 let app: Express
 
@@ -28,7 +31,13 @@ describe('POST /api/leads', () => {
     expect(res.body).toHaveProperty('ok', true)
     expect(res.body).toHaveProperty('id')
 
-    const lead = await LeadModel.findById(res.body.id).lean()
+    // Encryption assertion: the on-disk row must NOT hold plaintext PII.
+    const raw = await LeadModel.findById(res.body.id).select('+emailHash').lean()
+    expect(raw?.email).toMatch(/^v1:/)
+    expect(raw?.emailHash).toMatch(/^[0-9a-f]{64}$/)
+
+    // Decryption assertion: the application-facing read returns plaintext.
+    const lead = decryptLeanOne(PII_FIELDS, raw)
     expect(lead?.name).toBe('张三')
     expect(lead?.email).toBe('zhangsan@example.com')
     expect(lead?.status).toBe('new')
@@ -84,7 +93,7 @@ describe('POST /api/leads', () => {
       })
       .expect(201)
 
-    const lead = await LeadModel.findById(res.body.id).lean()
+    const lead = decryptLeanOne(PII_FIELDS, await LeadModel.findById(res.body.id).lean())
     expect(lead?.email).toBe('upper@case.com')
   })
 })

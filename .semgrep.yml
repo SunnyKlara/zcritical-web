@@ -1,0 +1,168 @@
+# Semgrep custom rules — business-specific safety nets that supplement
+# CodeQL's generic detectors. Run via the official `semgrep/semgrep-action`
+# GitHub workflow (see `.github/workflows/semgrep.yml`).
+#
+# Rule philosophy:
+#   - Each rule encodes a real "guardrail" decision documented in
+#     SECURITY-AUDIT.md or DECISIONS.md.
+#   - Severity ERROR fails CI; WARNING is informational.
+#   - When changing a rule, also update the steering / decision doc.
+
+rules:
+  # ───────────────────────── Payment safety ───────────────────────────────
+  - id: paypal-capture-without-amount-verification
+    message: |
+      `capturePayPalOrder` was called without a subsequent amount comparison
+      against the persisted Order.total. This permits price tampering
+      (e.g. attacker replays a $1 PayPal order vs our $299 record). Always
+      verify `amount === order.total` and persist a PaymentEvent before
+      marking the order paid.
+    severity: ERROR
+    languages: [typescript, javascript]
+    paths:
+      include:
+        - 'backend/src/**'
+    pattern-either:
+      - pattern: |
+          await capturePayPalOrder(...)
+        pattern-not-inside: |
+          if (amount !== $ORDER.total) { ... }
+          ...
+
+  - id: paypal-webhook-handler-without-signature-verification
+    message: |
+      A PayPal webhook handler was added without calling
+      `verifyWebhookSignature(req.headers, rawBody)`. Unsigned events can be
+      forged by anyone reaching the public endpoint.
+    severity: ERROR
+    languages: [typescript, javascript]
+    paths:
+      include:
+        - 'backend/src/routes/webhook.routes.ts'
+    pattern: |
+      $ROUTER.post('/paypal/webhook', async ($REQ, $RES) => { ... })
+    pattern-not: |
+      $ROUTER.post('/paypal/webhook', async ($REQ, $RES) => {
+        ...
+        await verifyWebhookSignature(...)
+        ...
+      })
+
+  # ───────────────────────── Idempotency ──────────────────────────────────
+  - id: order-mutation-without-idempotency
+    message: |
+      Order-mutating routes should be wrapped with the `idempotency()`
+      middleware so duplicated client retries (e.g. a user clicking "Pay
+      Now" twice) cannot create / capture / refund twice.
+    severity: WARNING
+    languages: [typescript, javascript]
+    paths:
+      include:
+        - 'backend/src/routes/order.routes.ts'
+        - 'backend/src/routes/admin-order.routes.ts'
+    pattern-either:
+      - pattern: |
+          $ROUTER.post('/$PATH/refund', ..., async ($REQ, $RES) => { ... })
+        pattern-not-inside: |
+          $ROUTER.post('/$PATH/refund', ..., idempotency(...), ..., async ($REQ, $RES) => { ... })
+      - pattern: |
+          $ROUTER.post('/$PATH/ship', ..., async ($REQ, $RES) => { ... })
+        pattern-not-inside: |
+          $ROUTER.post('/$PATH/ship', ..., idempotency(...), ..., async ($REQ, $RES) => { ... })
+
+  # ───────────────────────── Auth / sensitive routes ──────────────────────
+  - id: admin-route-without-auth-middleware
+    message: |
+      Admin-prefixed router has a route without `requireAdmin`. Either mount
+      `adminRouter.use(requireAdmin)` once or ensure every handler includes
+      it. Forgetting this exposes admin actions to anonymous users.
+    severity: ERROR
+    languages: [typescript, javascript]
+    paths:
+      include:
+        - 'backend/src/routes/admin-*.routes.ts'
+    pattern-either:
+      - pattern: |
+          adminOrderRouter.$METHOD('/$PATH', async ($REQ, $RES) => { ... })
+        pattern-not-inside: |
+          adminOrderRouter.use(requireAdmin)
+          ...
+
+  - id: writes-mongo-find-without-tenant-filter
+    message: |
+      Lookup against an encrypted email field — query the `emailHash` blind
+      index instead. A direct `email: <plaintext>` query will never match
+      ciphertext rows.
+    severity: ERROR
+    languages: [typescript, javascript]
+    paths:
+      include:
+        - 'backend/src/**'
+    pattern-either:
+      - pattern: |
+          OrderModel.findOne({ email: $X, ... })
+      - pattern: |
+          OrderModel.findOne({ ..., email: $X })
+      - pattern: |
+          OrderModel.find({ email: $X, ... })
+      - pattern: |
+          OrderModel.find({ ..., email: $X })
+      - pattern: |
+          LeadModel.findOne({ email: $X, ... })
+      - pattern: |
+          LeadModel.findOne({ ..., email: $X })
+      - pattern: |
+          LeadModel.find({ email: $X, ... })
+      - pattern: |
+          LeadModel.find({ ..., email: $X })
+
+  # ───────────────────────── Secrets / logging ────────────────────────────
+  - id: logger-without-redacted-pii
+    message: |
+      `logger.{info,warn,error}` call appears to log a raw email / phone /
+      password. Use the structured `{ orderNo: ... }` form so Pino's redact
+      list (config/logger.ts) can drop the field.
+    severity: WARNING
+    languages: [typescript, javascript]
+    paths:
+      include:
+        - 'backend/src/**'
+    pattern-either:
+      - pattern: logger.info(`...${$X.email}...`)
+      - pattern: logger.warn(`...${$X.email}...`)
+      - pattern: logger.error(`...${$X.email}...`)
+      - pattern: logger.info(`...${$X.password}...`)
+      - pattern: logger.warn(`...${$X.password}...`)
+      - pattern: logger.error(`...${$X.password}...`)
+
+  - id: weak-bcrypt-rounds
+    message: |
+      `bcrypt.hash` was called with rounds < 10. Our baseline is 12. Use the
+      shared `hashPassword()` helper instead of calling bcrypt directly.
+    severity: ERROR
+    languages: [typescript, javascript]
+    paths:
+      include:
+        - 'backend/src/**'
+    pattern-either:
+      - pattern: |
+          bcrypt.hash($X, 8)
+      - pattern: |
+          bcrypt.hash($X, 9)
+      - pattern: |
+          bcrypt.hash($X, 10)
+      - pattern: |
+          bcrypt.hash($X, 11)
+
+  # ───────────────────────── Crypto hygiene ───────────────────────────────
+  - id: math-random-for-security
+    message: |
+      `Math.random()` is not cryptographically secure. Use `randomBytes` /
+      `randomUUID` from `node:crypto` for tokens, IDs, or anything that must
+      not be guessable.
+    severity: WARNING
+    languages: [typescript, javascript]
+    paths:
+      include:
+        - 'backend/src/**'
+    pattern: Math.random()

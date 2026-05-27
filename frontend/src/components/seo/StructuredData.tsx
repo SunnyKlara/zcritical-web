@@ -7,11 +7,16 @@
 
 interface Props {
   data: Record<string, unknown>
+  nonce?: string
 }
 
-function StructuredData({ data }: Props) {
+function StructuredData({ data, nonce }: Props) {
   return (
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
+    <script
+      type="application/ld+json"
+      nonce={nonce}
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
   )
 }
 
@@ -19,9 +24,10 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://zcritical.co'
 
 // ─── Organization ───────────────────────────────────────────────────────────
 
-export function OrganizationSchema() {
+export function OrganizationSchema({ nonce }: { nonce?: string } = {}) {
   return (
     <StructuredData
+      nonce={nonce}
       data={{
         '@context': 'https://schema.org',
         '@type': 'Organization',
@@ -46,9 +52,10 @@ export function OrganizationSchema() {
 
 // ─── WebSite (with SearchAction) ────────────────────────────────────────────
 
-export function WebSiteSchema() {
+export function WebSiteSchema({ nonce }: { nonce?: string } = {}) {
   return (
     <StructuredData
+      nonce={nonce}
       data={{
         '@context': 'https://schema.org',
         '@type': 'WebSite',

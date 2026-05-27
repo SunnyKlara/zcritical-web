@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { Inter, Noto_Sans_SC, JetBrains_Mono } from 'next/font/google'
 import localFont from 'next/font/local'
 import { OrganizationSchema, WebSiteSchema } from '@/components/seo/StructuredData'
@@ -73,20 +74,21 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // Locale-specific lang attribute is handled by [locale]/layout via the
-  // `<html>` we emit here being overridden? Actually we MUST emit <html>/<body>
-  // here in the root layout (Next requirement). The [locale] layout adds
-  // NextIntlClientProvider on top.
+  // Pull the per-request CSP nonce that middleware injected so any inline
+  // <script>/<style> Next emits (e.g. next-themes' FOUC blocker) carries
+  // a `nonce` attribute that satisfies our strict CSP.
+  const nonce = headers().get('x-csp-nonce') ?? undefined
+
   return (
     <html suppressHydrationWarning className="scroll-smooth">
       <head>
-        <OrganizationSchema />
-        <WebSiteSchema />
+        <OrganizationSchema nonce={nonce} />
+        <WebSiteSchema nonce={nonce} />
       </head>
       <body
         className={`${inter.variable} ${notoSansSC.variable} ${jetbrainsMono.variable} ${geistMono.variable} font-sans antialiased`}
       >
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem nonce={nonce}>
           {children}
           <WebVitals />
           <SentryInit />

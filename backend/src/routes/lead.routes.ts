@@ -8,6 +8,7 @@ import {
   LEAD_STATUSES,
 } from '@critical/shared'
 import { LeadModel } from '../models/Lead.model'
+import { decryptLean } from '../db/encrypted-fields.plugin'
 import { validateBody, validateParams } from '../middleware/validate.middleware'
 import { requireAdmin } from '../middleware/auth.middleware'
 import { audit } from '../services/audit.service'
@@ -91,6 +92,9 @@ leadRouter.get('/', requireAdmin, async (req, res, next) => {
       .sort({ createdAt: -1 })
       .limit(Math.min(500, Number(limit) || 100))
       .lean()
+    // `.lean()` bypasses post('init') so encrypted fields stay as ciphertext.
+    // Decrypt in-place before returning.
+    decryptLean(['name', 'email', 'phone', 'message'], items)
     res.json(items)
   } catch (err) {
     next(err)

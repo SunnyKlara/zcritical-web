@@ -9,3 +9,5 @@ test-results/
 *.lock
 *.log
 pnpm-lock.yaml
+.semgrep.yml
+.zap/
