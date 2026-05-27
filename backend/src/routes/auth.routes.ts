@@ -474,25 +474,37 @@ authRouter.post(
 
     // Same factor-discriminator pattern as /verify-2fa: schema enforces
     // exactly one of {code, recoveryCode}; we capture the choice into a
-    // server-trusted enum before branching on it.
+    // server-trusted enum, then each branch self-validates and early-returns
+    // on failure. This avoids the "user-controlled bypass of security check"
+    // pattern (a sensitive action guarded by a boolean derived from user input).
     const factor: 'totp' | 'recovery' = code ? 'totp' : 'recovery'
-    let secondFactorOk = false
-    if (factor === 'totp' && code) {
-      secondFactorOk = verifyTotp(user.totpSecret, code)
-    } else if (factor === 'recovery' && recoveryCode) {
-      secondFactorOk = user.totpRecoveryCodeHashes.includes(hashRecoveryCode(recoveryCode))
+
+    if (factor === 'totp') {
+      if (!code || !verifyTotp(user.totpSecret, code)) {
+        audit({
+          action: 'auth.mfa.disable',
+          actor: { type: 'admin', id: userId, username: user.username },
+          success: false,
+          req,
+          meta: { reason: 'bad_second_factor' },
+        })
+        res.status(401).json({ error: 'Invalid 2FA code' })
+        return
+      }
+    } else {
+      if (!recoveryCode || !user.totpRecoveryCodeHashes.includes(hashRecoveryCode(recoveryCode))) {
+        audit({
+          action: 'auth.mfa.disable',
+          actor: { type: 'admin', id: userId, username: user.username },
+          success: false,
+          req,
+          meta: { reason: 'bad_second_factor' },
+        })
+        res.status(401).json({ error: 'Invalid 2FA code' })
+        return
+      }
     }
-    if (!secondFactorOk) {
-      audit({
-        action: 'auth.mfa.disable',
-        actor: { type: 'admin', id: userId, username: user.username },
-        success: false,
-        req,
-        meta: { reason: 'bad_second_factor' },
-      })
-      res.status(401).json({ error: 'Invalid 2FA code' })
-      return
-    }
+    // Both branches above either return on failure or fall through here on success.
 
     user.totpSecret = null
     user.totpEnabled = false
