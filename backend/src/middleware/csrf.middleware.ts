@@ -20,12 +20,16 @@ const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS'])
 const CSRF_EXEMPT_PATHS = new Set<string>([
   '/api/leads',
   '/api/auth/login',
+  '/api/auth/2fa/verify',
   '/api/chat/session',
   '/api/orders',
   '/api/orders/payments/paypal/capture',
   '/api/payments/paypal/webhook',
   '/api/devices/activate',
   '/api/devices/heartbeat',
+  '/api/account/data-request',
+  '/api/account/data-request/verify',
+  '/api/account/data-request/cancel-deletion',
 ])
 
 /** Set (or refresh) the CSRF cookie on every response. */

@@ -43,6 +43,7 @@ const spec = {
     { name: 'Auth', description: 'Admin authentication' },
     { name: 'Leads', description: 'Inquiry / contact form submissions' },
     { name: 'Chat', description: 'Visitor support chat' },
+    { name: 'Account', description: 'GDPR / CCPA data-subject rights endpoints' },
   ],
   components: {
     securitySchemes: {
@@ -113,12 +114,26 @@ const spec = {
         },
       },
       LoginResponse: {
-        type: 'object',
-        required: ['accessToken', 'user'],
-        properties: {
-          accessToken: { type: 'string' },
-          user: { $ref: '#/components/schemas/User' },
-        },
+        oneOf: [
+          {
+            type: 'object',
+            required: ['accessToken', 'user'],
+            properties: {
+              requiresTwoFactor: { type: 'boolean', enum: [false] },
+              accessToken: { type: 'string' },
+              user: { $ref: '#/components/schemas/User' },
+            },
+          },
+          {
+            type: 'object',
+            required: ['requiresTwoFactor', 'twoFactorToken', 'expiresIn'],
+            properties: {
+              requiresTwoFactor: { type: 'boolean', enum: [true] },
+              twoFactorToken: { type: 'string' },
+              expiresIn: { type: 'integer' },
+            },
+          },
+        ],
       },
       User: {
         type: 'object',
@@ -261,8 +276,11 @@ const spec = {
     '/api/auth/login': {
       post: {
         tags: ['Auth'],
-        summary: 'Admin login',
-        description: 'Returns access token in body, refresh token via httpOnly cookie.',
+        summary: 'Admin login (step 1)',
+        description:
+          'Returns access token in body when 2FA is disabled. When 2FA is enabled, returns ' +
+          '`{ requiresTwoFactor: true, twoFactorToken, expiresIn }` and the client must call ' +
+          '`/api/auth/2fa/verify` to complete the flow.',
         requestBody: {
           required: true,
           content: {
@@ -271,13 +289,299 @@ const spec = {
         },
         responses: {
           '200': {
-            description: 'Login successful',
+            description: 'Login successful or 2FA challenge issued',
             content: {
               'application/json': { schema: { $ref: '#/components/schemas/LoginResponse' } },
             },
           },
           '401': { description: 'Invalid credentials' },
+          '423': { description: 'Account temporarily locked' },
+          '429': { description: 'Too many attempts (per IP or per username)' },
+        },
+      },
+    },
+    '/api/auth/2fa/verify': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Admin login (step 2 — TOTP / backup code)',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['twoFactorToken'],
+                properties: {
+                  twoFactorToken: { type: 'string' },
+                  code: { type: 'string', pattern: '^\\d{6}$' },
+                  backupCode: { type: 'string', pattern: '^[0-9a-f]{5}-[0-9a-f]{5}$' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Login completed',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/LoginResponse' },
+              },
+            },
+          },
+          '401': { description: 'Invalid or expired challenge / wrong code' },
+          '423': { description: 'Account locked' },
           '429': { description: 'Too many attempts' },
+        },
+      },
+    },
+    '/api/auth/2fa/status': {
+      get: {
+        tags: ['Auth'],
+        summary: 'Get current admin 2FA status',
+        security: [{ BearerAuth: [] }],
+        responses: {
+          '200': {
+            description: '2FA status',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    enabled: { type: 'boolean' },
+                    backupCodesRemaining: { type: 'integer', minimum: 0 },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+        },
+      },
+    },
+    '/api/auth/2fa/setup': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Begin 2FA enrollment',
+        security: [{ BearerAuth: [] }],
+        responses: {
+          '200': {
+            description: 'TOTP secret + otpauth URL for QR code',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['secret', 'otpauthUrl', 'issuer', 'account'],
+                  properties: {
+                    secret: { type: 'string' },
+                    otpauthUrl: { type: 'string', format: 'uri' },
+                    issuer: { type: 'string' },
+                    account: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Unauthorized' },
+          '409': { description: '2FA already enabled' },
+        },
+      },
+    },
+    '/api/auth/2fa/enable': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Confirm 2FA enrollment with first code',
+        security: [{ BearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['code'],
+                properties: { code: { type: 'string', pattern: '^\\d{6}$' } },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: '2FA enabled — backup codes returned exactly once',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    enabled: { type: 'boolean' },
+                    backupCodes: { type: 'array', items: { type: 'string' } },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Run /auth/2fa/setup first' },
+          '401': { description: 'Invalid code' },
+          '409': { description: '2FA already enabled' },
+        },
+      },
+    },
+    '/api/auth/2fa/disable': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Disable 2FA (requires password)',
+        security: [{ BearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['password'],
+                properties: { password: { type: 'string' } },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: '2FA disabled' },
+          '401': { description: 'Password incorrect' },
+        },
+      },
+    },
+    '/api/auth/2fa/backup-codes': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Regenerate backup codes (invalidates previous set)',
+        security: [{ BearerAuth: [] }],
+        responses: {
+          '200': { description: 'New backup codes issued' },
+          '400': { description: '2FA is not enabled' },
+          '401': { description: 'Unauthorized' },
+        },
+      },
+    },
+    '/api/auth/change-password': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Change current admin password (requires current password + zxcvbn ≥3)',
+        security: [{ BearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['currentPassword', 'newPassword'],
+                properties: {
+                  currentPassword: { type: 'string' },
+                  newPassword: { type: 'string', minLength: 12, maxLength: 200 },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'Password changed' },
+          '400': {
+            description: 'Weak password (zxcvbn score < 3) or unchanged',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    error: { type: 'string' },
+                    score: { type: 'integer', minimum: 0, maximum: 4 },
+                    warning: { type: 'string' },
+                    suggestions: { type: 'array', items: { type: 'string' } },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Current password incorrect' },
+        },
+      },
+    },
+    '/api/account/data-request': {
+      post: {
+        tags: ['Account'],
+        summary: 'Initiate a GDPR/CCPA data export or delete request',
+        description:
+          'Sends a 6-digit OTP to the supplied email regardless of whether the email is known to ' +
+          'us (prevents enumeration). Always responds 202.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['email', 'kind'],
+                properties: {
+                  email: { type: 'string', format: 'email' },
+                  kind: { type: 'string', enum: ['export', 'delete'] },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '202': { description: 'OTP dispatched (always)' },
+          '400': { description: 'Validation error' },
+          '429': { description: 'Rate limited' },
+        },
+      },
+    },
+    '/api/account/data-request/verify': {
+      post: {
+        tags: ['Account'],
+        summary: 'Verify OTP and execute the requested action',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['email', 'kind', 'otp'],
+                properties: {
+                  email: { type: 'string', format: 'email' },
+                  kind: { type: 'string', enum: ['export', 'delete'] },
+                  otp: { type: 'string', pattern: '^\\d{6}$' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description:
+              'Export JSON dump (kind=export) or deletion-scheduled receipt (kind=delete)',
+          },
+          '400': { description: 'OTP invalid / expired / max attempts exceeded' },
+        },
+      },
+    },
+    '/api/account/data-request/cancel-deletion': {
+      post: {
+        tags: ['Account'],
+        summary: 'Reverse a pending soft-delete during the 30-day grace window',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['email', 'otp'],
+                properties: {
+                  email: { type: 'string', format: 'email' },
+                  otp: { type: 'string', pattern: '^\\d{6}$' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'Cancellation accepted' },
+          '400': { description: 'No pending request / OTP invalid' },
         },
       },
     },

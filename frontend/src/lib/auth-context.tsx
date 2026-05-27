@@ -15,16 +15,36 @@ export interface AdminUser {
   disabled: boolean
 }
 
-interface LoginResponse {
+interface LoginSuccessResponse {
   accessToken: string
   user: AdminUser
+  requiresTwoFactor?: false
 }
+
+interface LoginTwoFactorChallengeResponse {
+  requiresTwoFactor: true
+  twoFactorToken: string
+  expiresIn: number
+}
+
+type LoginResponse = LoginSuccessResponse | LoginTwoFactorChallengeResponse
+
+/** Result of `login` — either fully signed in, or a challenge to complete. */
+export type LoginResult =
+  | { kind: 'authenticated' }
+  | { kind: 'twoFactor'; twoFactorToken: string; expiresIn: number }
 
 interface AuthContextValue {
   user: AdminUser | null
   accessToken: string | null
   loading: boolean
-  login: (username: string, password: string) => Promise<void>
+  login: (username: string, password: string) => Promise<LoginResult>
+  /** Complete a 2FA challenge with a TOTP code or one-time backup code. */
+  verifyTwoFactor: (input: {
+    twoFactorToken: string
+    code?: string
+    backupCode?: string
+  }) => Promise<void>
   logout: () => Promise<void>
   refresh: () => Promise<boolean>
 }
@@ -67,15 +87,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refresh().finally(() => setLoading(false))
   }, [refresh])
 
-  const login = useCallback(async (username: string, password: string) => {
-    const response = await apiFetch<LoginResponse>('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ username, password }),
-    })
+  const finalizeAuthenticated = useCallback((response: LoginSuccessResponse) => {
     setAccessToken(response.accessToken)
     setUser(response.user)
     sessionStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken)
   }, [])
+
+  const login = useCallback(
+    async (username: string, password: string): Promise<LoginResult> => {
+      const response = await apiFetch<LoginResponse>('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+      })
+      if (response.requiresTwoFactor === true) {
+        return {
+          kind: 'twoFactor',
+          twoFactorToken: response.twoFactorToken,
+          expiresIn: response.expiresIn,
+        }
+      }
+      finalizeAuthenticated(response)
+      return { kind: 'authenticated' }
+    },
+    [finalizeAuthenticated],
+  )
+
+  const verifyTwoFactor = useCallback(
+    async (input: { twoFactorToken: string; code?: string; backupCode?: string }) => {
+      const response = await apiFetch<LoginSuccessResponse>('/api/auth/2fa/verify', {
+        method: 'POST',
+        body: JSON.stringify(input),
+      })
+      finalizeAuthenticated(response)
+    },
+    [finalizeAuthenticated],
+  )
 
   const logout = useCallback(async () => {
     try {
@@ -89,7 +135,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, accessToken, loading, login, logout, refresh }}>
+    <AuthContext.Provider
+      value={{ user, accessToken, loading, login, verifyTwoFactor, logout, refresh }}
+    >
       {children}
     </AuthContext.Provider>
   )

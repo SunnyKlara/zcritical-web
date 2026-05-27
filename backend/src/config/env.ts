@@ -20,6 +20,23 @@ const EnvSchema = z
     JWT_ACCESS_TTL: z.string().default('15m'),
     JWT_REFRESH_TTL: z.string().default('7d'),
 
+    /**
+     * Symmetric key for AES-256-GCM at-rest encryption (TOTP secrets, future PII).
+     * Generate with `openssl rand -hex 32`. Optional in dev/test (derived via HKDF).
+     */
+    ENCRYPTION_KEY: z
+      .union([
+        z.string().regex(/^[0-9a-fA-F]{64}$/u, 'ENCRYPTION_KEY must be 64 hex chars (32 bytes)'),
+        z.literal(''),
+      ])
+      .optional()
+      .transform((v) => (v ? v : undefined)),
+
+    /**
+     * 2FA TOTP issuer label shown in authenticator apps. Keep short.
+     */
+    TOTP_ISSUER: z.string().min(1).default('Critical'),
+
     ADMIN_USERNAME: z.string().min(3).default('admin'),
     ADMIN_PASSWORD: z.string().min(8, 'ADMIN_PASSWORD must be >= 8 chars').default('admin1234'),
     ADMIN_EMAIL: z
@@ -59,6 +76,11 @@ const EnvSchema = z
   })
   .refine((v) => v.NODE_ENV !== 'production' || v.JWT_REFRESH_SECRET.length >= 32, {
     message: 'JWT_REFRESH_SECRET must be >= 32 chars in production',
+  })
+  .refine((v) => v.NODE_ENV !== 'production' || !!v.ENCRYPTION_KEY, {
+    message:
+      'ENCRYPTION_KEY (64 hex chars) is required in production. Generate with: openssl rand -hex 32',
+    path: ['ENCRYPTION_KEY'],
   })
 
 export type Env = z.infer<typeof EnvSchema>

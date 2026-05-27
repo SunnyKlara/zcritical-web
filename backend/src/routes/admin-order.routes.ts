@@ -8,7 +8,9 @@ import {
 } from '@critical/shared'
 import { OrderModel } from '../models/Order.model'
 import { PaymentEventModel } from '../models/PaymentEvent.model'
+import { decryptLean, decryptLeanOne } from '../db/encrypted-fields.plugin'
 import { validateBody, validateParams } from '../middleware/validate.middleware'
+import { idempotency } from '../middleware/idempotency.middleware'
 import { requireAdmin } from '../middleware/auth.middleware'
 import { audit } from '../services/audit.service'
 import { logger } from '../config/logger'
@@ -21,6 +23,14 @@ export const adminOrderRouter = Router()
 adminOrderRouter.use(requireAdmin)
 
 const OrderIdParams = z.object({ id: ObjectIdSchema })
+
+const ORDER_PII_FIELDS = [
+  'email',
+  'shippingAddress.fullName',
+  'shippingAddress.line1',
+  'shippingAddress.line2',
+  'shippingAddress.phone',
+]
 
 /** List orders. */
 adminOrderRouter.get('/', async (req, res, next) => {
@@ -38,6 +48,7 @@ adminOrderRouter.get('/', async (req, res, next) => {
       .sort({ createdAt: -1 })
       .limit(Math.min(200, Number(limit) || 50))
       .lean()
+    decryptLean(ORDER_PII_FIELDS, items)
     res.json(items)
   } catch (err) {
     next(err)
@@ -47,7 +58,7 @@ adminOrderRouter.get('/', async (req, res, next) => {
 /** Get one order with payment event timeline. */
 adminOrderRouter.get('/:id', validateParams(OrderIdParams), async (req, res, next) => {
   try {
-    const order = await OrderModel.findById(req.params.id).lean()
+    const order = decryptLeanOne(ORDER_PII_FIELDS, await OrderModel.findById(req.params.id).lean())
     if (!order) {
       res.status(404).json({ error: 'Order not found' })
       return
@@ -65,6 +76,7 @@ adminOrderRouter.get('/:id', validateParams(OrderIdParams), async (req, res, nex
 adminOrderRouter.post(
   '/:id/ship',
   validateParams(OrderIdParams),
+  idempotency({ scope: 'order.ship' }),
   validateBody(ShipOrderRequestSchema),
   async (req, res, next) => {
     try {
@@ -114,6 +126,7 @@ adminOrderRouter.post(
 adminOrderRouter.post(
   '/:id/refund',
   validateParams(OrderIdParams),
+  idempotency({ scope: 'order.refund' }),
   validateBody(RefundOrderRequestSchema),
   async (req, res, next) => {
     try {

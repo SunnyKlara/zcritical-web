@@ -9,9 +9,11 @@ import {
 import { OrderModel } from '../models/Order.model'
 import { PaymentEventModel } from '../models/PaymentEvent.model'
 import { validateBody } from '../middleware/validate.middleware'
+import { idempotency } from '../middleware/idempotency.middleware'
 import { audit } from '../services/audit.service'
 import { logger } from '../config/logger'
 import { env, isTest } from '../config/env'
+import { emailBlindIndex } from '../lib/crypto'
 import { generateOrderNo } from '../lib/order-no'
 import { priceOrderRequest, deductStock } from '../services/order.service'
 import { createPayPalOrder, capturePayPalOrder } from '../services/paypal.service'
@@ -39,6 +41,7 @@ const orderLookupLimiter = rateLimit({
 orderRouter.post(
   '/',
   orderCreateLimiter,
+  idempotency({ scope: 'order.create' }),
   validateBody(CreateOrderRequestSchema),
   async (req, res, next) => {
     try {
@@ -127,6 +130,7 @@ orderRouter.post(
 /** Public: PayPal capture endpoint, called by frontend success page. */
 orderRouter.post(
   '/payments/paypal/capture',
+  idempotency({ scope: 'order.capture' }),
   validateBody(CapturePaymentRequestSchema),
   async (req, res, next) => {
     try {
@@ -242,10 +246,11 @@ orderRouter.get('/lookup', orderLookupLimiter, async (req, res, next) => {
       return
     }
 
+    // Email is encrypted at rest — query against the deterministic blind index.
     const order = await OrderModel.findOne({
       orderNo: parsed.data.orderNo,
-      email: parsed.data.email,
-    }).lean()
+      emailHash: emailBlindIndex('order.email', parsed.data.email),
+    })
 
     if (!order) {
       // Don't reveal which field was wrong
