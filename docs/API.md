@@ -1,6 +1,6 @@
 # API 参考
 
-> Critical 后端 API 文档。所有 API 以 `/api` 为前缀，运行在 `http://localhost:4000`（开发）或 `https://api.critical.bike`（生产）。
+> Critical 后端 API 文档。所有 API 以 `/api` 为前缀，运行在 `http://localhost:4000`（开发）或 `https://api.zcritical.co`（生产）。
 >
 > 本文档随 backend 实现进度更新。当前状态：M2（询盘转化）。
 
@@ -45,7 +45,7 @@ HTTP 状态码：
 **Public** · 存活探针。
 
 ```bash
-curl https://api.critical.bike/api/health
+curl https://api.zcritical.co/api/health
 ```
 
 ```json
@@ -75,7 +75,7 @@ curl https://api.critical.bike/api/health
 **速率限制**：3 req/分钟/IP
 
 ```bash
-curl -X POST https://api.critical.bike/api/leads \
+curl -X POST https://api.zcritical.co/api/leads \
   -H "Content-Type: application/json" \
   -d '{
     "name": "张三",
@@ -150,7 +150,7 @@ curl -X POST http://localhost:4000/api/auth/login \
   "user": {
     "_id": "...",
     "username": "admin",
-    "email": "admin@critical.bike",
+    "email": "admin@zcritical.co",
     "role": "admin",
     "displayName": "Administrator",
     "disabled": false

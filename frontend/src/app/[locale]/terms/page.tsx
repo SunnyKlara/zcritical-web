@@ -90,8 +90,8 @@ export default function TermsPage({ params }: { params: { locale: string } }) {
               </p>
               <p className="mt-3">
                 因质量问题导致的退换货，由 Critical 承担运费。请在 30 天内联系{' '}
-                <a href="mailto:support@critical.bike" className="text-primary hover:underline">
-                  support@critical.bike
+                <a href="mailto:support@zcritical.co" className="text-primary hover:underline">
+                  support@zcritical.co
                 </a>{' '}
                 申请。
               </p>
@@ -133,8 +133,8 @@ export default function TermsPage({ params }: { params: { locale: string } }) {
 
             <Section title="13. 联系方式">
               如对本协议有疑问，请联系{' '}
-              <a href="mailto:legal@critical.bike" className="text-primary hover:underline">
-                legal@critical.bike
+              <a href="mailto:legal@zcritical.co" className="text-primary hover:underline">
+                legal@zcritical.co
               </a>
               。
             </Section>

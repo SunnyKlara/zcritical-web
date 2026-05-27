@@ -21,7 +21,7 @@ beforeEach(async () => {
   // Seed a known admin user
   await UserModel.create({
     username: TEST_USERNAME,
-    email: 'testadmin@critical.bike',
+    email: 'testadmin@zcritical.co',
     passwordHash: await hashPassword(TEST_PASSWORD),
     role: 'admin',
     displayName: 'Test Admin',

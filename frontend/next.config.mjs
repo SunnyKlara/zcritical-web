@@ -12,7 +12,7 @@ const nextConfig = {
   poweredByHeader: false,
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "**.critical.bike" },
+      { protocol: "https", hostname: "**.zcritical.co" },
       { protocol: "https", hostname: "github.com" },
     ],
     formats: ["image/avif", "image/webp"],

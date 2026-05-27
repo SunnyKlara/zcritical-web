@@ -52,7 +52,7 @@ const emailShell = (title: string, body: string): string => `
       ${body}
     </div>
     <p style="text-align:center;color:#999;font-size:12px;margin-top:24px;">
-      &copy; ${new Date().getFullYear()} Critical · <a href="${SITE_URL}" style="color:#999;">critical.bike</a>
+      &copy; ${new Date().getFullYear()} Critical · <a href="${SITE_URL}" style="color:#999;">zcritical.co</a>
     </p>
   </div>
 </body>
@@ -184,7 +184,7 @@ export async function notifyOrderConfirmed(order: OrderDocument): Promise<void> 
     </div>
 
     <p style="color:#999;font-size:12px;margin-top:32px;text-align:center;border-top:1px solid #eee;padding-top:20px;">
-      ${isZh ? '如有疑问请联系' : 'Questions?'} <a href="mailto:support@critical.bike" style="color:#00A3CC;">support@critical.bike</a>
+      ${isZh ? '如有疑问请联系' : 'Questions?'} <a href="mailto:support@zcritical.co" style="color:#00A3CC;">support@zcritical.co</a>
     </p>`
 
   try {
@@ -251,7 +251,7 @@ export async function notifyOrderShipped(order: OrderDocument): Promise<void> {
     }
 
     <p style="color:#999;font-size:12px;margin-top:32px;text-align:center;border-top:1px solid #eee;padding-top:20px;">
-      ${isZh ? '如有疑问请联系' : 'Questions?'} <a href="mailto:support@critical.bike" style="color:#00A3CC;">support@critical.bike</a>
+      ${isZh ? '如有疑问请联系' : 'Questions?'} <a href="mailto:support@zcritical.co" style="color:#00A3CC;">support@zcritical.co</a>
     </p>`
 
   try {
@@ -313,7 +313,7 @@ export async function notifyOrderRefunded(
     </p>
 
     <p style="color:#999;font-size:12px;margin-top:32px;text-align:center;border-top:1px solid #eee;padding-top:20px;">
-      ${isZh ? '如有疑问请联系' : 'Questions?'} <a href="mailto:support@critical.bike" style="color:#00A3CC;">support@critical.bike</a>
+      ${isZh ? '如有疑问请联系' : 'Questions?'} <a href="mailto:support@zcritical.co" style="color:#00A3CC;">support@zcritical.co</a>
     </p>`
 
   try {

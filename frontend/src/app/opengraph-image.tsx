@@ -110,7 +110,7 @@ export default function OpenGraphImage() {
           display: 'flex',
         }}
       >
-        critical.bike
+        zcritical.co
       </div>
     </div>,
     { ...size },

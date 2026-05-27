@@ -32,7 +32,7 @@ const geistMono = localFont({
   weight: '100 900',
 })
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://critical.bike'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://zcritical.co'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

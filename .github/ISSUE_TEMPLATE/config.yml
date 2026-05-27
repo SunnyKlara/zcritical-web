@@ -4,8 +4,8 @@ contact_links:
     url: https://github.com/SunnyKlara/Zcritical/security/advisories/new
     about: 请勿在公开 issue 中报告安全漏洞 — 使用此入口私下联系我们。
   - name: 客户支持
-    url: https://critical.bike/support
-    about: 产品使用问题 / 售后请访问支持页面或邮件 support@critical.bike。
+    url: https://zcritical.co/support
+    about: 产品使用问题 / 售后请访问支持页面或邮件 support@zcritical.co。
   - name: 项目讨论
     url: https://github.com/SunnyKlara/Zcritical/discussions
     about: 一般问题、想法和讨论。

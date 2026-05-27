@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { locales, defaultLocale } from '@/i18n/routing'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://critical.bike'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://zcritical.co'
 
 const routes: {
   path: string

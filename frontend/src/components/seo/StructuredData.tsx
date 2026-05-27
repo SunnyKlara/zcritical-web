@@ -15,7 +15,7 @@ function StructuredData({ data }: Props) {
   )
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://critical.bike'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://zcritical.co'
 
 // ─── Organization ───────────────────────────────────────────────────────────
 
@@ -36,7 +36,7 @@ export function OrganizationSchema() {
         contactPoint: {
           '@type': 'ContactPoint',
           contactType: 'Customer Service',
-          email: 'support@critical.bike',
+          email: 'support@zcritical.co',
           availableLanguage: ['zh', 'en'],
         },
       }}

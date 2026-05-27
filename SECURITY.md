@@ -14,7 +14,7 @@
 
 请通过以下任一渠道私下联系我们：
 
-- **邮件**：security@critical.bike（推荐，PGP 公钥见下方）
+- **邮件**：security@zcritical.co（推荐，PGP 公钥见下方）
 - **GitHub Security Advisory**：https://github.com/SunnyKlara/Zcritical/security/advisories/new
 
 ### 报告应包含

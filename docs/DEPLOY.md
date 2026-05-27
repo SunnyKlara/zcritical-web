@@ -36,9 +36,9 @@ Vercel (frontend)  ←→  Render (backend)  ←→  MongoDB Atlas
 
 把域名 NS 指向 Cloudflare：
 
-- `critical.bike` → 主营销站（Vercel）
-- `api.critical.bike` → 后端 API（Render）
-- `cdn.critical.bike`（M5 起） → R2 固件 CDN
+- `zcritical.co` → 主营销站（Vercel）
+- `api.zcritical.co` → 后端 API（Render）
+- `cdn.zcritical.co`（M5 起） → R2 固件 CDN
 
 ---
 
@@ -58,13 +58,13 @@ Vercel (frontend)  ←→  Render (backend)  ←→  MongoDB Atlas
    ```
    NODE_ENV=production
    PORT=4000
-   FRONTEND_URL=https://critical.bike
+   FRONTEND_URL=https://zcritical.co
    MONGODB_URI=mongodb+srv://...
    JWT_ACCESS_SECRET=<openssl rand -hex 32>
    JWT_REFRESH_SECRET=<openssl rand -hex 32>
    ADMIN_USERNAME=admin
    ADMIN_PASSWORD=<strong password>
-   ADMIN_EMAIL=admin@critical.bike
+   ADMIN_EMAIL=admin@zcritical.co
    SENTRY_DSN=https://...@sentry.io/...
    ```
 
@@ -73,7 +73,7 @@ Vercel (frontend)  ←→  Render (backend)  ←→  MongoDB Atlas
    - 返回 200 即认为存活
 
 4. **首次部署后**
-   - 访问 `https://api.critical.bike/api/health` 验证
+   - 访问 `https://api.zcritical.co/api/health` 验证
    - Admin 用上面的用户名密码登录 `/admin`，立即修改密码
 
 ### 防止冷启动
@@ -84,7 +84,7 @@ Render 免费层 15 分钟空闲会休眠，首次请求 ~30 秒冷启动。
 
 ```
 https://uptimerobot.com → 添加 Monitor
-URL: https://api.critical.bike/api/health
+URL: https://api.zcritical.co/api/health
 Interval: 5 minutes
 ```
 
@@ -102,14 +102,14 @@ Interval: 5 minutes
 2. **环境变量**：
 
    ```
-   NEXT_PUBLIC_BACKEND_URL=https://api.critical.bike
-   NEXT_PUBLIC_SITE_URL=https://critical.bike
+   NEXT_PUBLIC_BACKEND_URL=https://api.zcritical.co
+   NEXT_PUBLIC_SITE_URL=https://zcritical.co
    NEXT_PUBLIC_SENTRY_DSN=https://...@sentry.io/...
    ```
 
 3. **域名绑定**
    - Project Settings → Domains
-   - 添加 `critical.bike` 和 `www.critical.bike`
+   - 添加 `zcritical.co` 和 `www.zcritical.co`
    - 在 Cloudflare DNS 添加对应 CNAME
 
 4. **Preview 部署**

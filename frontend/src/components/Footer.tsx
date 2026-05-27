@@ -145,10 +145,10 @@ export default function Footer() {
               <li className="text-sm text-text-secondary">
                 <span className="text-text-tertiary">{t('emailLabel')}：</span>
                 <a
-                  href="mailto:support@critical.bike"
+                  href="mailto:support@zcritical.co"
                   className="hover:text-primary transition-colors"
                 >
-                  support@critical.bike
+                  support@zcritical.co
                 </a>
               </li>
               <li className="text-sm text-text-secondary">

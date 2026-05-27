@@ -25,8 +25,8 @@ const EnvSchema = z
     ADMIN_EMAIL: z
       .string()
       .email()
-      .default('admin@critical.bike')
-      .or(z.literal('').transform(() => 'admin@critical.bike')),
+      .default('admin@zcritical.co')
+      .or(z.literal('').transform(() => 'admin@zcritical.co')),
 
     SMTP_HOST: z.string().optional(),
     SMTP_PORT: z.coerce.number().int().positive().optional(),

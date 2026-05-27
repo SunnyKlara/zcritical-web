@@ -13,7 +13,7 @@ export const openapiRouter = Router()
  *
  * Renders nicely in Swagger UI, Postman, Insomnia, Bruno, Stoplight Studio.
  */
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://critical.bike'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://zcritical.co'
 const API_URL = process.env.API_URL ?? 'http://localhost:4000'
 
 const spec = {
@@ -25,7 +25,7 @@ const spec = {
       'Backend API for Critical — smart wind tunnel simulator brand site, admin console, and customer support.',
     contact: {
       name: 'Critical Engineering',
-      email: 'dev@critical.bike',
+      email: 'dev@zcritical.co',
       url: SITE_URL,
     },
     license: {
@@ -35,7 +35,7 @@ const spec = {
   },
   servers: [
     { url: API_URL, description: 'Current environment' },
-    { url: 'https://api.critical.bike', description: 'Production' },
+    { url: 'https://api.zcritical.co', description: 'Production' },
     { url: 'http://localhost:4000', description: 'Local dev' },
   ],
   tags: [

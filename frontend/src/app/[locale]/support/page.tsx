@@ -168,7 +168,7 @@ export default function SupportPage() {
             <h2 className="text-xl font-bold mb-4">没有找到答案？</h2>
             <p className="text-gray-400 mb-6">联系我们的技术支持团队，我们会尽快回复</p>
             <div className="flex flex-wrap justify-center gap-4">
-              <a href="mailto:support@critical.bike" className="btn-ghost">
+              <a href="mailto:support@zcritical.co" className="btn-ghost">
                 <Mail className="w-4 h-4" />
                 邮件支持
               </a>

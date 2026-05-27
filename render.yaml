@@ -18,7 +18,7 @@ services:
       - key: PORT
         value: 4000
       - key: FRONTEND_URL
-        value: https://critical.bike
+        value: https://zcritical.co
       - key: MONGODB_URI
         sync: false
       - key: JWT_ACCESS_SECRET

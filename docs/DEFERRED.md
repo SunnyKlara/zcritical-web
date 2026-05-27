@@ -76,24 +76,15 @@
 
 ### 1.3 域名 / SSL / DNS
 
-**当前状态**：项目假设域名为 `critical.bike`（在 metadata / sitemap / sentry 等多处引用）。
+**当前状态**：✅ 域名已注册 — `zcritical.co`（Cloudflare Registrar，2027-05-28 到期，自动续费已开）
 
-**待办**
+**剩余待办**
 
-- [ ] 注册 `critical.bike`（或选定的实际域名）
-- [ ] DNS 解析到 Vercel（前端） + Render（API）
-- [ ] CNAME `api.critical.bike` → Render 服务域
-- [ ] `email.critical.bike` MX/CNAME → SendGrid（domain authentication）
+- [ ] DNS 解析：把 `zcritical.co` 指到 Vercel（前端） + Render（API）
+- [ ] CNAME `api.zcritical.co` → Render 服务域
+- [ ] `email.zcritical.co` MX/CNAME → SendGrid/Resend（domain authentication）
 - [ ] 配置 CAA 记录（限制能签发证书的 CA）
-- [ ] 双向同步 Cloudflare Access + Render Hostname
-
-如果域名不是 `critical.bike`，需要全局替换：
-
-- `frontend/src/app/layout.tsx` 中的 `metadataBase`
-- `frontend/src/app/sitemap.ts` 中的 base URL
-- `frontend/src/app/robots.ts`
-- `backend/src/config/env.ts` 中的 `FRONTEND_URL` / `BACKEND_URL` 默认值
-- 多个邮件模板里的 `support@critical.bike`
+- [ ] 阿里云已注册的 `zcritical.cn` 可作国内备案后的镜像站，等需要时再启用
 
 ### 1.4 Lighthouse 基线（Performance ≥ 90）
 
@@ -106,7 +97,7 @@
 - 第三方脚本 — Sentry / Web Vitals 全部 lazy-load
 - 图片 — 通过 `next/image` 强制 AVIF/WebP
 
-**推荐流程**：上线后立即跑一次 `pnpm --filter frontend exec lhci autorun --collect.url=https://critical.bike` 拿到 baseline，然后逐项优化到 ≥90。
+**推荐流程**：上线后立即跑一次 `pnpm --filter frontend exec lhci autorun --collect.url=https://zcritical.co` 拿到 baseline，然后逐项优化到 ≥90。
 
 ---
 

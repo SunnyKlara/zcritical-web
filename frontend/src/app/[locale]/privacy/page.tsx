@@ -109,8 +109,8 @@ export default function PrivacyPage({ params }: { params: { locale: string } }) 
               </ul>
               <p className="mt-3">
                 如需行使上述权利，请联系{' '}
-                <a href="mailto:privacy@critical.bike" className="text-primary hover:underline">
-                  privacy@critical.bike
+                <a href="mailto:privacy@zcritical.co" className="text-primary hover:underline">
+                  privacy@zcritical.co
                 </a>
                 。
               </p>
@@ -146,19 +146,19 @@ export default function PrivacyPage({ params }: { params: { locale: string } }) 
                 <li>
                   邮箱：
                   <a
-                    href="mailto:privacy@critical.bike"
+                    href="mailto:privacy@zcritical.co"
                     className="text-primary hover:underline ml-1"
                   >
-                    privacy@critical.bike
+                    privacy@zcritical.co
                   </a>
                 </li>
                 <li>
                   客服：
                   <a
-                    href="mailto:support@critical.bike"
+                    href="mailto:support@zcritical.co"
                     className="text-primary hover:underline ml-1"
                   >
-                    support@critical.bike
+                    support@zcritical.co
                   </a>
                 </li>
               </ul>

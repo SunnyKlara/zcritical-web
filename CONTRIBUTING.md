@@ -136,4 +136,4 @@ chore(deps): bump zod to 3.24
 
 - 业务/产品问题：见 README 联系方式
 - 技术问题：在 GitHub Discussions 提问
-- 紧急问题：邮件 dev@critical.bike
+- 紧急问题：邮件 dev@zcritical.co
