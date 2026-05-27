@@ -113,3 +113,147 @@ describe('shared/constants', () => {
     expect(FIRMWARE_CHANNELS).toEqual(['stable', 'beta', 'dev'])
   })
 })
+
+describe('shared/schemas/auth', () => {
+  // Lazy import so failures here don't shadow the lead/common suites.
+
+  it('LoginRequestSchema accepts valid credentials', async () => {
+    const { LoginRequestSchema } = await import('../schemas/auth.schema')
+    const r = LoginRequestSchema.safeParse({ username: 'admin', password: 'pw1234' })
+    expect(r.success).toBe(true)
+  })
+
+  it('LoginRequestSchema rejects empty username', async () => {
+    const { LoginRequestSchema } = await import('../schemas/auth.schema')
+    const r = LoginRequestSchema.safeParse({ username: '', password: 'pw' })
+    expect(r.success).toBe(false)
+  })
+
+  it('LoginResponseSchema parses authenticated branch', async () => {
+    const { LoginResponseSchema } = await import('../schemas/auth.schema')
+    const r = LoginResponseSchema.safeParse({
+      status: 'authenticated',
+      accessToken: 'jwt.value.here',
+      user: {
+        username: 'admin',
+        email: 'admin@example.com',
+        role: 'admin',
+        disabled: false,
+      },
+    })
+    expect(r.success).toBe(true)
+  })
+
+  it('LoginResponseSchema parses mfa_required branch', async () => {
+    const { LoginResponseSchema } = await import('../schemas/auth.schema')
+    const r = LoginResponseSchema.safeParse({
+      status: 'mfa_required',
+      mfaToken: 'opaque.token',
+    })
+    expect(r.success).toBe(true)
+  })
+
+  it('LoginResponseSchema rejects unknown status', async () => {
+    const { LoginResponseSchema } = await import('../schemas/auth.schema')
+    const r = LoginResponseSchema.safeParse({ status: 'unknown' })
+    expect(r.success).toBe(false)
+  })
+
+  describe('Verify2FARequestSchema', () => {
+    it('accepts code only', async () => {
+      const { Verify2FARequestSchema } = await import('../schemas/auth.schema')
+      const r = Verify2FARequestSchema.safeParse({ mfaToken: 't', code: '123456' })
+      expect(r.success).toBe(true)
+    })
+
+    it('accepts recoveryCode only', async () => {
+      const { Verify2FARequestSchema } = await import('../schemas/auth.schema')
+      const r = Verify2FARequestSchema.safeParse({
+        mfaToken: 't',
+        recoveryCode: 'AAAA-BBBB-CCCC',
+      })
+      expect(r.success).toBe(true)
+    })
+
+    it('rejects when both code and recoveryCode are present', async () => {
+      const { Verify2FARequestSchema } = await import('../schemas/auth.schema')
+      const r = Verify2FARequestSchema.safeParse({
+        mfaToken: 't',
+        code: '123456',
+        recoveryCode: 'AAAA-BBBB-CCCC',
+      })
+      expect(r.success).toBe(false)
+    })
+
+    it('rejects when neither code nor recoveryCode is present', async () => {
+      const { Verify2FARequestSchema } = await import('../schemas/auth.schema')
+      const r = Verify2FARequestSchema.safeParse({ mfaToken: 't' })
+      expect(r.success).toBe(false)
+    })
+
+    it('rejects malformed code (not 6 digits)', async () => {
+      const { Verify2FARequestSchema } = await import('../schemas/auth.schema')
+      const r = Verify2FARequestSchema.safeParse({ mfaToken: 't', code: '12345' })
+      expect(r.success).toBe(false)
+    })
+
+    it('rejects malformed recovery code', async () => {
+      const { Verify2FARequestSchema } = await import('../schemas/auth.schema')
+      const r = Verify2FARequestSchema.safeParse({
+        mfaToken: 't',
+        recoveryCode: 'invalid',
+      })
+      expect(r.success).toBe(false)
+    })
+  })
+
+  describe('Disable2FARequestSchema', () => {
+    it('accepts password + code', async () => {
+      const { Disable2FARequestSchema } = await import('../schemas/auth.schema')
+      const r = Disable2FARequestSchema.safeParse({ password: 'pw', code: '123456' })
+      expect(r.success).toBe(true)
+    })
+
+    it('accepts password + recoveryCode', async () => {
+      const { Disable2FARequestSchema } = await import('../schemas/auth.schema')
+      const r = Disable2FARequestSchema.safeParse({
+        password: 'pw',
+        recoveryCode: 'AAAA-BBBB-CCCC',
+      })
+      expect(r.success).toBe(true)
+    })
+
+    it('rejects when neither factor is provided', async () => {
+      const { Disable2FARequestSchema } = await import('../schemas/auth.schema')
+      const r = Disable2FARequestSchema.safeParse({ password: 'pw' })
+      expect(r.success).toBe(false)
+    })
+
+    it('rejects when both factors are provided', async () => {
+      const { Disable2FARequestSchema } = await import('../schemas/auth.schema')
+      const r = Disable2FARequestSchema.safeParse({
+        password: 'pw',
+        code: '123456',
+        recoveryCode: 'AAAA-BBBB-CCCC',
+      })
+      expect(r.success).toBe(false)
+    })
+  })
+
+  it('VerifySetup2FAResponseSchema enforces exactly 8 codes', async () => {
+    const { VerifySetup2FAResponseSchema } = await import('../schemas/auth.schema')
+    const r = VerifySetup2FAResponseSchema.safeParse({
+      recoveryCodes: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
+    })
+    expect(r.success).toBe(true)
+
+    const tooFew = VerifySetup2FAResponseSchema.safeParse({ recoveryCodes: ['a'] })
+    expect(tooFew.success).toBe(false)
+  })
+
+  it('MfaTokenPayloadSchema rejects non-mfa purpose', async () => {
+    const { MfaTokenPayloadSchema } = await import('../schemas/auth.schema')
+    const r = MfaTokenPayloadSchema.safeParse({ sub: 'u', jti: 'j', purpose: 'access' })
+    expect(r.success).toBe(false)
+  })
+})
