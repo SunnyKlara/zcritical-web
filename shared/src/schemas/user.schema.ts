@@ -18,5 +18,8 @@ export const UserSchema = z.object({
 export type User = z.infer<typeof UserSchema>
 
 /** Public-safe user projection returned to the client. */
-export const PublicUserSchema = UserSchema
+export const PublicUserSchema = UserSchema.extend({
+  /** Whether TOTP 2FA is enabled. Computed; never stored on client docs. */
+  totpEnabled: z.boolean().optional(),
+})
 export type PublicUser = z.infer<typeof PublicUserSchema>
