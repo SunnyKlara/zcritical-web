@@ -35,7 +35,23 @@ module.exports = {
     'scope-enum': [
       1, // warning, not error
       'always',
-      ['frontend', 'backend', 'shared', 'docs', 'docker', 'ci', 'deps', 'release'],
+      [
+        'frontend',
+        'backend',
+        'shared',
+        'docs',
+        'docker',
+        'ci',
+        'deps',
+        'release',
+        'lint',
+        // Workstream scopes (see docs/WORKSTREAMS.md)
+        'W1',
+        'W2',
+        'W3',
+        'W4',
+        'W5',
+      ],
     ],
     'subject-case': [0], // disabled — 允许中英文混排
     'header-max-length': [2, 'always', 100],
