@@ -121,9 +121,7 @@ printBox('Next Steps', [
   '',
   '1. Install dependencies in each worktree (one-time):',
   '',
-  ...STREAMS.map(
-    (s) => `   cd ../${s.dir} && pnpm install`,
-  ),
+  ...STREAMS.map((s) => `   cd ../${s.dir} && pnpm install`),
   '',
   '2. Open each worktree in a separate Kiro window:',
   '',
