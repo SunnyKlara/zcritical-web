@@ -1,0 +1,43 @@
+name: OWASP ZAP Baseline
+
+# Opt-in security scan against the production-rendered frontend. Runs:
+#   - Manually via workflow_dispatch (preferred for staged environments)
+#   - Weekly on a schedule (passive scan only — never blocks merges)
+#
+# This is intentionally *not* in the PR-required CI matrix because it needs
+# real network access to a deployed URL. Provide ZAP_TARGET_URL via repo
+# variable / dispatch input.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'URL to scan (e.g. https://staging.zcritical.co)'
+        required: true
+        default: 'https://zcritical.co'
+  schedule:
+    # Sundays 03:00 UTC — quiet traffic window.
+    - cron: '0 3 * * 0'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  zap:
+    name: ZAP Baseline (passive)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: ${{ github.event.inputs.target || vars.ZAP_TARGET_URL || 'https://zcritical.co' }}
+          rules_file_name: '.zap/rules.tsv'
+          # Don't fail the workflow on findings — passive scan is informational
+          # only. The summary issue captures everything.
+          allow_issue_writing: true
+          fail_action: false

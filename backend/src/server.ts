@@ -20,6 +20,7 @@ import { adminOrderRouter } from './routes/admin-order.routes'
 import { webhookRouter } from './routes/webhook.routes'
 import { firmwareRouter, adminFirmwareRouter } from './routes/firmware.routes'
 import { deviceRouter, adminDeviceRouter } from './routes/device.routes'
+import { accountRouter } from './routes/account.routes'
 import { errorHandler, notFoundHandler } from './middleware/error.middleware'
 import { csrfCookieSetter, csrfProtection } from './middleware/csrf.middleware'
 import { requestId } from './middleware/request-id.middleware'
@@ -139,6 +140,7 @@ export function createServer(): {
   app.use('/api/admin/firmware', adminFirmwareRouter)
   app.use('/api/admin/devices', adminDeviceRouter)
   app.use('/api/payments', webhookRouter)
+  app.use('/api/account', accountRouter)
 
   app.use(notFoundHandler)
   installSentryExpressErrorHandler(app)

@@ -10,6 +10,7 @@ import { connectMongo } from './db/mongoose'
 import { createServer } from './server'
 import { seedDefaultAdmin } from './services/auth.service'
 import { startOrderCleanup, stopOrderCleanup } from './services/order-cleanup.service'
+import { startAnomalyDetector, stopAnomalyDetector } from './services/anomaly.service'
 
 const SHUTDOWN_TIMEOUT_MS = 10_000
 
@@ -17,6 +18,7 @@ async function main(): Promise<void> {
   await connectMongo()
   await seedDefaultAdmin()
   startOrderCleanup()
+  startAnomalyDetector()
   const { server, io } = createServer()
 
   server.listen(env.PORT, () => {
@@ -48,6 +50,7 @@ async function main(): Promise<void> {
 
       // 2. Stop background cleanup
       stopOrderCleanup()
+      stopAnomalyDetector()
 
       // 3. Disconnect Socket.io clients
       io.disconnectSockets(true)

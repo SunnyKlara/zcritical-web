@@ -328,3 +328,116 @@ export async function notifyOrderRefunded(
     logger.error({ err, orderNo: order.orderNo }, 'Failed to send refund email')
   }
 }
+
+// ─── New sign-in alert (admin-facing) ───────────────────────────────────────
+
+export async function notifyNewSignIn(params: {
+  email: string
+  username: string
+  ip?: string
+  userAgent?: string
+  signedInAt: Date
+}): Promise<void> {
+  const tx = getTransporter()
+  if (!tx) return
+  try {
+    await tx.sendMail({
+      from: env.SMTP_FROM || env.SMTP_USER,
+      to: params.email,
+      subject: `[Critical] New sign-in to your admin account`,
+      html: emailShell(
+        'New sign-in detected',
+        `
+        <h2 style="color:#111;margin:0 0 16px;">New sign-in detected</h2>
+        <p style="color:#555;line-height:1.6;">
+          We noticed a sign-in to <strong>${escapeHtml(params.username)}</strong> from a device or
+          location we have not seen before:
+        </p>
+        <table style="width:100%;font-size:14px;border-collapse:collapse;margin-top:8px;">
+          <tr><td style="padding:8px 0;color:#888;width:140px;">When</td><td>${escapeHtml(params.signedInAt.toUTCString())}</td></tr>
+          <tr><td style="padding:8px 0;color:#888;">IP (approx)</td><td>${escapeHtml(params.ip ?? 'unknown')}</td></tr>
+          <tr><td style="padding:8px 0;color:#888;">User-Agent</td><td>${escapeHtml(params.userAgent ?? 'unknown')}</td></tr>
+        </table>
+        <p style="color:#555;margin-top:20px;line-height:1.6;">
+          If this was you, you can ignore this message. If not, change your password and
+          regenerate your 2FA backup codes immediately.
+        </p>
+      `,
+      ),
+    })
+    logger.info({ to: params.email }, 'New sign-in alert sent')
+  } catch (err) {
+    logger.warn({ err }, 'Failed to send new sign-in alert')
+  }
+}
+
+// ─── GDPR — email a 6-digit OTP to the requester ────────────────────────────
+
+export async function sendDataRequestOtp(params: {
+  email: string
+  otp: string
+  kind: 'export' | 'delete'
+}): Promise<void> {
+  const tx = getTransporter()
+  if (!tx) {
+    logger.warn('SMTP not configured — data-request OTP cannot be delivered')
+    return
+  }
+  const action = params.kind === 'export' ? 'data export' : 'account deletion'
+  await tx.sendMail({
+    from: env.SMTP_FROM || env.SMTP_USER,
+    to: params.email,
+    subject: `[Critical] Verify your ${action} request`,
+    html: emailShell(
+      'Verify your request',
+      `
+      <h2 style="color:#111;margin:0 0 16px;">Verify your ${action} request</h2>
+      <p style="color:#555;line-height:1.6;">
+        Use the following 6-digit code to confirm your ${action} request. The code expires
+        in 15 minutes. If you did not request this, ignore this email.
+      </p>
+      <p style="font-size:32px;font-weight:bold;letter-spacing:8px;margin:24px 0;text-align:center;font-family:'SF Mono',Consolas,monospace;color:#0A0A0A;background:#f5f5f5;padding:16px;border-radius:8px;">
+        ${escapeHtml(params.otp)}
+      </p>
+      <p style="color:#999;font-size:12px;margin-top:32px;">
+        For your security we will never ask for this code over chat or phone.
+      </p>
+    `,
+    ),
+  })
+  logger.info({ kind: params.kind, to: params.email }, 'Data-request OTP sent')
+}
+
+// ─── GDPR — confirm deletion scheduled ──────────────────────────────────────
+
+export async function notifyDeletionScheduled(params: {
+  email: string
+  scheduledAt: Date
+}): Promise<void> {
+  const tx = getTransporter()
+  if (!tx) return
+  try {
+    await tx.sendMail({
+      from: env.SMTP_FROM || env.SMTP_USER,
+      to: params.email,
+      subject: `[Critical] Your data will be deleted on ${params.scheduledAt.toDateString()}`,
+      html: emailShell(
+        'Deletion scheduled',
+        `
+        <h2 style="color:#111;margin:0 0 16px;">Deletion scheduled</h2>
+        <p style="color:#555;line-height:1.6;">
+          Your account-deletion request has been received. All data tied to
+          <strong>${escapeHtml(params.email)}</strong> will be permanently removed on
+          <strong>${escapeHtml(params.scheduledAt.toUTCString())}</strong>.
+        </p>
+        <p style="color:#555;line-height:1.6;">
+          Until then you can cancel the request from the same Account → Privacy form. After
+          the scheduled date, deletion is irreversible.
+        </p>
+      `,
+      ),
+    })
+  } catch (err) {
+    logger.warn({ err }, 'Failed to send deletion-scheduled email')
+  }
+}

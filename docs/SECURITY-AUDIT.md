@@ -3,6 +3,26 @@
 > 用大厂内部安全工程师视角，对当前代码库做一次完整审计。
 > 每项都有：现状、风险评级、建议改动、负责流。
 
+> ## 进度（2026-05-27 — Batch 3 完成）
+>
+> Phase 0 安全加固三批已落地（main 分支）：
+>
+> **Batch 1**（Admin 安全）：Admin TOTP 2FA · 账户锁定 · Webhook 重放保护 · 幂等性中间件 · 按 username 限速
+>
+> **Batch 2**（数据 + 平台安全）：PII 字段加密 · CSP nonce · Semgrep + 7 条业务规则 · 强密码 zxcvbn · SBOM · 应急响应 Runbook
+>
+> **Batch 3**（合规 + 监控）：
+>
+> - ✅ 🟡 GDPR / CCPA 数据导出 + 删除 API（OTP 验证 + 30 天 grace + hard-delete worker）
+> - ✅ 🟢 异地登录 / 新设备检测（fuzzy fingerprint + 邮件告警）
+> - ✅ 🟡 业务异常监控（5 分钟周期 / 4 个 KPI / Sentry 告警）
+> - ✅ 🟡 OWASP ZAP baseline workflow + rules.tsv（每周 + manual dispatch）
+> - ✅ 🟡 Cookie SameSite 决策（ADR-0002 — 现状 None 最佳，触发重评估的条件已列）
+>
+> **测试**：57 tests 全绿（43 backend + 14 shared）；3 个 workspace typecheck / lint / build 全通过。
+>
+> **剩余 backlog**：bug bounty 政策（上线后 3 月）/ audit log 冷热分层 / X-Robots-Tag header 加固 / 实测渗透（需 staging 环境就绪）。
+
 ---
 
 ## 1. 审计方法

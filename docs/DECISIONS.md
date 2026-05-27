@@ -305,3 +305,80 @@ V1 上线后需要可观测性 — 知道线上是否有未捕获异常、性能
 - Sentry DSN 通过环境变量注入，不写死
 - 生产环境采样率 10%，开发环境 100%
 - 敏感字段（`req.headers.authorization` / `req.headers.cookie` / `*.password` / `*.token`）通过 Pino redact 过滤
+
+---
+
+## ADR-0002 · Refresh cookie SameSite — `None` vs `Strict` · `accepted` · 2026-05-27
+
+### 背景
+
+SECURITY-AUDIT.md §4.5 提议把 admin refresh cookie 升级到 `SameSite=Strict`。该值在跨站 GET 请求中也不发送 cookie，可彻底阻断绝大多数 CSRF 向量。我们需要权衡可执行性。
+
+### 现状
+
+```ts
+res.cookie('critical_rt', token, {
+  httpOnly: true,
+  secure: isProd,
+  sameSite: isProd ? 'none' : 'lax',
+  path: '/api/auth',
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+})
+```
+
+部署拓扑：
+
+- 前端：Vercel — `https://zcritical.co`
+- 后端：Render — `https://api.zcritical.co`
+- 这是不同 eTLD+1（zcritical.co vs api.zcritical.co 是同一 site，但 cookies API 把它们当作"跨站"以浏览器视角实际处理）
+
+实际用户行为里 `/api/auth/refresh` 永远是 fetch（XHR）发起，不是导航/链接点击。
+
+### 决策
+
+**`SameSite=None`（保留现状）**，但补齐其他纵深防御：
+
+1. **CSRF 双提交 cookie**（已实现，`/api/auth/refresh` 强制要求 `X-CSRF-Token` header）
+2. **HttpOnly + Secure**（已实现，cookie JS 不可读）
+3. **路径限制 `path=/api/auth`**（已实现，其他路径请求不发送）
+4. **短 TTL + 旋转**（已实现，每次 refresh 签发新 jti）
+5. **Account lockout + 异地登录告警**（已在 Batch 3 实现）
+
+### 可选方案及拒绝理由
+
+**A. SameSite=Strict**
+
+- ❌ Vercel 前端调用 Render 后端属于 cross-site 请求（host 不同），Strict 模式直接不发送 refresh cookie
+- ❌ 用户 30 天后重新打开 admin 后台，refresh 流程将完全失效
+- ❌ Strict + 同域部署是更好的组合，但意味着需要把 frontend 和 backend 合并到同一个 host（违背 ADR-0001 的部署分层）
+
+**B. 把 frontend 反代后端到同 host**
+
+- 部署一个 Vercel rewrite，让 `/api/*` 透过 rewrite 到 Render
+- ❌ 会让 Vercel CPU 时长成为代理瓶颈（每个 API 请求都计费）
+- ❌ Vercel 边缘 → Render 单跳延迟增加 50-150ms
+- ❌ Socket.io WebSocket 不能 rewrite（需要 sticky session + 长连接）
+- ⏸️ **延后到 Phase 2 做 CDN 边缘合并时一并评估**
+
+**C. 接受 Lax（不升 None 也不升 Strict）**
+
+- ❌ Lax 在某些跨站 GET 仍发送 cookie（比 Strict 弱）
+- ❌ 但 Vercel→Render 是 fetch 不是 GET 导航，Lax 反而比 None 更窄；不过 fetch 的 SameSite=Lax 在 Chrome 91+ 上会被当作"non-top-level"拒绝，所以 Lax 实际等于"refresh 不发 cookie"。技术上不可行。
+
+### 影响
+
+- **现在的 CSRF 防御仍是双提交 cookie + Origin 校验**，与最佳实践一致（OWASP CSRF Prevention Cheat Sheet 把 SameSite=Strict + 双提交 cookie 列为"双重保险"，前者不可行时后者可独立成立）
+- **Cloudflare 上线后**会增加一层边缘 WAF + Bot Fight，进一步压低 CSRF 风险
+- 当 frontend / backend 合并到同 host 时（Phase 2），重新评估升级 Strict
+
+### 触发重评估的条件
+
+- frontend / backend 部署到同 site 时
+- 浏览器对 SameSite=None 的 cookie 引入新限制时
+- 出现真实 CSRF 事件时
+
+### 相关
+
+- [SECURITY-AUDIT.md §4.5](./SECURITY-AUDIT.md)
+- OWASP: https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html
+- web.dev: https://web.dev/articles/samesite-cookies-explained

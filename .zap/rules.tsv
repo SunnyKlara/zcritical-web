@@ -1,0 +1,13 @@
+# ZAP baseline rule overrides. Format: <ruleId>\t<level>\t<comment>
+#
+# Levels: IGNORE | WARN | FAIL
+#   IGNORE — rule does not run / is silenced
+#   WARN   — issue is reported but does not fail the build
+#   FAIL   — issue fails the build (only meaningful when fail_action: true)
+#
+# Add a row only after a deliberate decision; reference it in a PR.
+
+# CSP rule false-positives on dev / sandbox; we ship a strict CSP via middleware.
+10038	WARN	CSP — middleware-injected, occasional report-only sandbox runs flag this
+# Some Permissions-Policy directives ZAP doesn't yet recognise.
+10063	WARN	Permissions-Policy header probe
