@@ -19,7 +19,21 @@
 - ✅ 创建 `docs/TECH-ROADMAP.md` — 3-5 年技术演进路线
 - ✅ 创建 `scripts/setup-worktrees.mjs` — 一键创建 4 个 worktree
 
-**下一步**：等用户验收文档框架，决定 Phase 0 月 1 W2 启动节奏
+### [W1] 入库 + 多窗口基建上线（晚间）
+
+- ✅ 项目首次入库 GitHub — `https://github.com/SunnyKlara/zcritical-web` — `master → main` 重命名 — commit `fdf13a8`
+- ✅ 跑通 `setup-worktrees.mjs` — 物化 4 个 worktree：`critical-fe / -be / -sec / -content`
+- ✅ 创建并推送 4 条长期分支到 origin：`feat/fe-base`、`feat/be-base`、`feat/sec-base`、`feat/content-base`
+- ✅ README 加上 GitHub 仓库链接 + CI / CodeQL badge
+- ✅ 各 worktree 节省策略：node_modules 在对应流首次激活时再装，不预装
+
+**当前状态**：Phase 0 月 1 W1 文档周完成。多窗口"图纸 + 基建"全部到位，下一个动作可以随时切到 W4 安全加固周。
+
+**下一步（W1 月 1 W2 启动议程）**：
+
+1. W4 启动：Admin 2FA TOTP（SECURITY-AUDIT §3.1）— 第一个生产级安全加固任务
+2. W3 启动：幂等性键（PayPal capture / refund）— 与 W4 并行
+3. W1 持续：观察首次 push 后的 CI 跑通情况，必要时修复 workflow
 
 ---
 

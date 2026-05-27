@@ -93,7 +93,7 @@ git worktree list
 应该看到 5 行（包括主 worktree）：
 
 ```
-e:/.../critical            <commit>  [master]
+e:/.../critical            <commit>  [main]
 e:/.../critical-fe         <commit>  [feat/fe-base]
 e:/.../critical-be         <commit>  [feat/be-base]
 e:/.../critical-sec        <commit>  [feat/sec-base]
@@ -282,7 +282,7 @@ kiro e:\Users\Administrator\Desktop\zcriticalweb\critical-be
 ```cmd
 cd <你的 worktree>
 git fetch origin
-git rebase origin/master    # 或 git pull --rebase
+git rebase origin/main      # 或 git pull --rebase
 pnpm install                # 同步依赖
 ```
 
@@ -307,7 +307,7 @@ git fetch --all --prune
 git log --all --oneline --graph -30   # 看全局图
 ```
 
-W1 决定哪些分支可以 merge 到 master。
+W1 决定哪些分支可以 merge 到 main。
 
 ---
 
@@ -319,20 +319,20 @@ W1 决定哪些分支可以 merge 到 master。
 cd /d e:\Users\Administrator\Desktop\zcriticalweb\critical
 
 # 想合 W3 的某个 PR
-git checkout master
+git checkout main
 git merge --no-ff feat/be-idempotency
 pnpm typecheck && pnpm test
-git push origin master
+git push origin main
 ```
 
 ### 冲突处理
 
-如果 master 有了新东西，对应 worktree 要 rebase：
+如果 main 有了新东西，对应 worktree 要 rebase：
 
 ```cmd
 cd /d e:\Users\Administrator\Desktop\zcriticalweb\critical-be
 git fetch origin
-git rebase origin/master
+git rebase origin/main
 # 解决冲突
 git rebase --continue
 git push --force-with-lease
@@ -344,7 +344,7 @@ git push --force-with-lease
 
 ## 7. 完成一条流后清理
 
-任务全部完成、合并到 master 后：
+任务全部完成、合并到 main 后：
 
 ```cmd
 # 在主控窗口

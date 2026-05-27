@@ -2,6 +2,12 @@
 
 > 智能风洞模拟器 — 全栈 Monorepo（品牌站 + 后端 + 共享契约）
 
+[![CI](https://github.com/SunnyKlara/zcritical-web/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/SunnyKlara/zcritical-web/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/SunnyKlara/zcritical-web/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/SunnyKlara/zcritical-web/actions/workflows/codeql.yml)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
+仓库：[SunnyKlara/zcritical-web](https://github.com/SunnyKlara/zcritical-web) · 域名：[zcritical.co](https://zcritical.co)（规划中）
+
 ## 当前阶段：Phase 0 底座加固（3 个月）
 
 > 项目当前不追求快速上线，而在做**大厂内核级品质**的底座加固。

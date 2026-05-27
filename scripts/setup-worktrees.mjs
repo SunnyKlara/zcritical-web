@@ -135,7 +135,7 @@ printBox('Next Steps', [
   '',
   '4. Daily routine (per worktree):',
   '',
-  '   git fetch origin && git rebase origin/master',
+  '   git fetch origin && git rebase origin/main',
   '   # ... do your work ...',
   '   git push origin <branch>',
   '',
