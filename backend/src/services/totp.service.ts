@@ -14,7 +14,7 @@
  *   - actively maintained, ESM friendly, no transitive deps.
  *   - returns deterministic Base32 secrets we can persist.
  */
-import { randomBytes, createHash } from 'node:crypto'
+import { randomBytes, randomInt, createHash } from 'node:crypto'
 import { TOTP, Secret } from 'otpauth'
 import QRCode from 'qrcode'
 
@@ -76,13 +76,17 @@ export function verifyTotp(secretBase32: string, code: string): boolean {
 
 const RECOVERY_BLOCK_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789' // omit ambiguous I,O,1,0
 
+/**
+ * Generate one 4-character block. Uses `crypto.randomInt(min, max)` instead
+ * of `randomBytes(...) % len` — the latter is only unbiased when `len` evenly
+ * divides 256, and CodeQL flags it regardless. `randomInt` internally applies
+ * rejection sampling for guaranteed uniform distribution across any range.
+ */
 function generateRecoveryBlock(): string {
   const len = 4
-  const bytes = randomBytes(len)
   let out = ''
   for (let i = 0; i < len; i++) {
-    const byte = bytes[i] ?? 0
-    out += RECOVERY_BLOCK_CHARS[byte % RECOVERY_BLOCK_CHARS.length]
+    out += RECOVERY_BLOCK_CHARS[randomInt(0, RECOVERY_BLOCK_CHARS.length)]
   }
   return out
 }
