@@ -2,6 +2,21 @@
 
 > 智能风洞模拟器 — 全栈 Monorepo（品牌站 + 后端 + 共享契约）
 
+## 当前阶段：Phase 0 底座加固（3 个月）
+
+> 项目当前不追求快速上线，而在做**大厂内核级品质**的底座加固。
+
+- 📐 [战略文档 `STRATEGY.md`](./docs/STRATEGY.md) — 三阶段规划（Phase 0/1/2）
+- 🏗️ [架构图谱 `ARCHITECTURE-VISUAL.md`](./docs/ARCHITECTURE-VISUAL.md) — 8 张 Mermaid 可视化
+- 🔒 [安全审计 `SECURITY-AUDIT.md`](./docs/SECURITY-AUDIT.md) — Critical/High/Medium/Low 分级清单
+- 🧭 [技术路线 `TECH-ROADMAP.md`](./docs/TECH-ROADMAP.md) — 3-5 年演进
+- 🎯 [工作流 `WORKSTREAMS.md`](./docs/WORKSTREAMS.md) — 5 条并行工作流定义
+- 🔌 [接口契约 `INTERFACES.md`](./docs/INTERFACES.md) — 跨流契约 + RFC 流程
+- 🌳 [并行开发 `PARALLEL-DEV-GUIDE.md`](./docs/PARALLEL-DEV-GUIDE.md) — 多窗口工作流操作手册
+- 📚 [参考项目 `REFERENCE-PROJECTS.md`](./docs/REFERENCE-PROJECTS.md) — 7 个高质量开源项目深度学习清单
+- 📋 [每日日志 `DAILY-LOG.md`](./docs/DAILY-LOG.md) — 各工作流每日进展
+- 🤝 [协作清单 `COLLAB.md`](./docs/COLLAB.md) — 需要外部凭证的协作项
+
 ## 项目结构
 
 ```
