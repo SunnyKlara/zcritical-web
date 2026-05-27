@@ -38,18 +38,44 @@
 - ✅ Dependabot 21 个 PR 分诊到 `docs/DEPENDABOT-TRIAGE-2026-05-27.md`：5 个绿合、6 个黄观察、7 个红关闭、3 个延后
 - ⚠️ Node 20 deprecation 警告（June 2 起强制 Node 24）：建议本周做一次 "Node 22 baseline" 独立 PR
 
+### [W1] Node 22 baseline 一揽子升级（2 次后续）
+
+- ✅ Node 基线：`.nvmrc` / `package.json#engines` / `Dockerfile.api` 全部 20 → 22 LTS — commit `b67a329`
+- ✅ Actions 升级：`actions/checkout@v5` / `actions/setup-node@v6` / `pnpm/action-setup@v6` / `github/codeql-action@v4`
+- ✅ 拆掉 6 月 2 日 GitHub Actions 强制 Node 24 的定时炸弹
+- ✅ 副作用：dependabot PR #1/#2/#3/#5（actions 升级类）会自动 stale 关闭
+
+### [W4] 启动 + 第一项交付：Admin 2FA TOTP backend
+
+> 在 `feat/sec-base` 分支（critical-sec/ worktree）开发 — commit `e90c673`
+
+- ✅ 设计：双阶段登录（password → mfaToken → TOTP/recovery code → access+refresh）
+  - 5 分钟有效期的 mfaToken（独立 HMAC 签名 secret，不与 access/refresh 混淆）
+  - 单 token 5 次尝试上限，防爆破
+  - 8 个 SHA-256 哈希存储的恢复码（一次性）
+  - ±1 时间窗口（30s）的 TOTP 漂移容忍
+- ✅ shared/auth.schema.ts：discriminatedUnion `LoginResponse` + 6 个新 schema（Verify2FA / Setup2FA / Disable2FA / MfaTokenPayload / VerifySetup2FA 系列）
+- ✅ User Model 加 `totpSecret / totpEnabled / totpActivatedAt / totpRecoveryCodeHashes`，全部 `select: false`
+- ✅ 新 service：`backend/src/services/totp.service.ts`（otpauth + qrcode）
+- ✅ 路由：`/login`（双阶段）`/verify-2fa` `/2fa/setup` `/2fa/verify-setup` `/2fa/disable`
+- ✅ 测试：11 个新集成测试覆盖 setup → verify-setup → activated → mfa_required → verify-2fa → disable 全流程，外加恢复码一次性消费 + 防爆破断言
+- ✅ 全套验证：typecheck / lint / format / test 6 文件 38 通过
+
+**当前状态**：Phase 0 月 1 W1 完成 + W4 第一项 backend 交付。`feat/sec-base` 待合 main（等 frontend admin UI 一起走 PR）。
+
 **已知遗留问题**（W1 后续处理）：
 
-1. **commitlint scope 白名单**：commitlint.config.cjs 里 scope-enum 未含 `lint`，下次 fix 用 `fix(backend)` 等规范 scope
-2. **eslint-config-prettier**：现在用 rule 关闭单点冲突，应该装 `eslint-config-prettier` 一次性扫平所有 prettier ↔ eslint 冲突
-3. **Node 22 baseline**：所有 Node 版本基线统一到 22 LTS（`.nvmrc` / `engines` / CI / Dockerfile）
-4. **Dependabot 21 个 PR**：按 triage 文档执行，需要在 GitHub UI 操作
+1. **commitlint scope 白名单**：已扩充 W1-W5 + lint，covered 在 commit `25782ae`
+2. **eslint-config-prettier**：仍是用 rule 关闭单点冲突，应该装 `eslint-config-prettier` 一次性扫平
+3. **mfaAttempts in-memory**：当前用 Map + Set 在进程内，多实例时需迁 Redis（写进 W3 backend 积压）
+4. **TOTP secret 加密**：`select: false` + 明文 Base32，等 W4-PII epic 时落 Mongoose 字段级加密
+5. **Dependabot 21 个 PR**：Node 22 升级会让 PR #1 #2 #3 #5（actions 类）自动 stale，仍需手动 close 7 个红 PR + rebase 5 个绿
 
-**下一步（W1 月 1 W2 启动议程）**：
+**下一步（优先级排序）**：
 
-1. 合并/关闭 Dependabot PR（按 triage）— GitHub UI 操作，由人执行
-2. W4 启动：Admin 2FA TOTP（SECURITY-AUDIT §3.1）— 第一个生产级安全加固任务
-3. W3 启动：幂等性键（PayPal capture / refund）— 与 W4 并行
+1. **W4 frontend**：admin 登录页加 2FA 步骤 + 设置页加 setup/disable UI + i18n（zh/en）
+2. **W4 → main 合流**：frontend + backend 一并打 PR（首个跨流契约 RFC 演练）
+3. **W3 后端启动**：幂等性键（PayPal capture / refund）— 与 W4 并行
 
 ---
 
