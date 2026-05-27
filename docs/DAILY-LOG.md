@@ -61,7 +61,19 @@
 - ✅ 测试：11 个新集成测试覆盖 setup → verify-setup → activated → mfa_required → verify-2fa → disable 全流程，外加恢复码一次性消费 + 防爆破断言
 - ✅ 全套验证：typecheck / lint / format / test 6 文件 38 通过
 
-**当前状态**：Phase 0 月 1 W1 完成 + W4 第一项 backend 交付。`feat/sec-base` 待合 main（等 frontend admin UI 一起走 PR）。
+### [W4] Admin 2FA TOTP frontend — commit `ff7be72`
+
+- ✅ `lib/auth-context.tsx` 全面升级：单阶段 `login()` → 双阶段返回 `LoginOutcome`，新增 `verify2FA / setupTotp / verifySetupTotp / disableTotp`
+- ✅ `/admin/login`：3 状态机（credentials → totp / recovery），含 framer-motion 切换动画、`autocomplete="one-time-code"`、剩余尝试次数提示、token 耗尽自动回退
+- ✅ `/admin/security`（新页面）：5 阶段流程
+  - QR 扫描（next/image，附"无法扫描"折叠手输 secret）
+  - 验证码激活
+  - 恢复码展示（grid + 复制全部 + 下载 .txt + 必须勾选"已保存"才能完成）
+  - 禁用流程（密码 + TOTP 双因子确认）
+- ✅ admin dashboard 顶栏加"安全"入口，未启用 2FA 时显示琥珀色 ShieldAlert，已启用显示绿色 ShieldCheck
+- ✅ 全套验证：typecheck / lint / check-i18n / build / 38 backend tests 全 ✅
+
+**当前状态**：Phase 0 月 1 W1 完成 + W4 第一项端到端交付。`feat/sec-base` 待开 PR 合 main。
 
 **已知遗留问题**（W1 后续处理）：
 
