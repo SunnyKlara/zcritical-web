@@ -51,6 +51,17 @@ const nextConfig = {
         source: "/icon.svg",
         headers: [{ key: "Cache-Control", value: "public, max-age=86400" }],
       },
+      // Admin surface — keep search engines + caches well clear. The
+      // <meta robots="noindex"> tag in the admin layout is also there for
+      // belt-and-braces (some indexers honour the HTTP header but not the
+      // meta tag, others vice versa).
+      {
+        source: "/admin/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive, nosnippet, noimageindex" },
+          { key: "Cache-Control", value: "no-store, no-cache, must-revalidate, private" },
+        ],
+      },
     ];
   },
 };
