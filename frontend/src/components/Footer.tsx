@@ -152,6 +152,12 @@ export default function Footer() {
                 </a>
               </li>
               <li className="text-sm text-text-secondary">
+                <span className="text-text-tertiary">{t('phoneLabel')}：</span>
+                <a href="tel:+8618119503280" className="hover:text-primary transition-colors">
+                  181 1950 3280
+                </a>
+              </li>
+              <li className="text-sm text-text-secondary">
                 <span className="text-text-tertiary">{t('wechatLabel')}：</span>
                 Critical_Official
               </li>
@@ -164,7 +170,12 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-surface-divider flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-text-tertiary">{t('copyright', { year })}</p>
+          <div className="text-xs text-text-tertiary text-center sm:text-left space-y-1">
+            <p>{t('copyright', { year })}</p>
+            <p>
+              {t('legalEntity')} · {t('address')}
+            </p>
+          </div>
           <div className="flex gap-6">
             <Link
               href="/privacy"

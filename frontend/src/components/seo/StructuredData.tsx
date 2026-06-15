@@ -26,6 +26,7 @@ export function OrganizationSchema() {
         '@context': 'https://schema.org',
         '@type': 'Organization',
         name: 'Critical',
+        legalName: '柯普碎影科技（深圳）有限公司',
         url: SITE_URL,
         logo: `${SITE_URL}/icon`,
         sameAs: [
@@ -37,6 +38,7 @@ export function OrganizationSchema() {
           '@type': 'ContactPoint',
           contactType: 'Customer Service',
           email: 'support@zcritical.co',
+          telephone: '+86-181-1950-3280',
           availableLanguage: ['zh', 'en'],
         },
       }}
