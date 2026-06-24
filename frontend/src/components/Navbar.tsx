@@ -37,6 +37,7 @@ export default function Navbar() {
   // Independent page routes (locale-aware)
   const pageLinks = [
     { href: '/download' as const, label: t('download') },
+    { href: '/guide' as const, label: t('guide') },
     { href: '/support' as const, label: t('support') },
   ]
 
