@@ -14,6 +14,8 @@ import {
   ArrowRight,
   MessageCircle,
   Package,
+  ShieldAlert,
+  ShieldCheck,
 } from 'lucide-react'
 import { useAuth, authFetch } from '@/lib/auth-context'
 
@@ -87,6 +89,22 @@ export default function AdminDashboardPage() {
             >
               <MessageCircle className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">客服</span>
+            </Link>
+            <Link
+              href="/admin/security"
+              className={`px-3 py-1.5 rounded-lg border text-xs transition-colors flex items-center gap-1.5 ${
+                user.totpEnabled
+                  ? 'border-green-500/30 text-green-400 hover:border-green-500/50'
+                  : 'border-amber-500/30 text-amber-400 hover:border-amber-500/50'
+              }`}
+              title={user.totpEnabled ? '2FA 已启用' : '建议启用 2FA'}
+            >
+              {user.totpEnabled ? (
+                <ShieldCheck className="w-3.5 h-3.5" />
+              ) : (
+                <ShieldAlert className="w-3.5 h-3.5" />
+              )}
+              <span className="hidden sm:inline">安全</span>
             </Link>
             <div className="text-right hidden sm:block">
               <p className="text-sm text-white">{user.displayName || user.username}</p>
